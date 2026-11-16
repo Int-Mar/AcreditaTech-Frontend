@@ -2,7 +2,6 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Redirige /api/... del frontend al backend automáticamente
   async rewrites() {
     return [
       {
@@ -13,4 +12,4 @@ const nextConfig = {
   }
 };
 
-module.exports = nextConfig;
+export default nextConfig;
