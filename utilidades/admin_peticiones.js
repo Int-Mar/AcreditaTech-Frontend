@@ -36,3 +36,17 @@ export async function editarPerfilAdmin(nombre) {
   const res = await axios.put('/api/administracion/perfil', { nombre }, encabezadoAuth());
   return res.data;
 }
+
+export function redirigirSiNoAutorizado(error, router) {
+  const estado = error.response?.status;
+  if (estado === 401) {
+    borrarToken();
+    router.push('/login');
+    return true;
+  }
+  if (estado === 403) {
+    router.push('/usuario/menu');
+    return true;
+  }
+  return false;
+}
