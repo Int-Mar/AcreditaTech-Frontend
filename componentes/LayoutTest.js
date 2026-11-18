@@ -36,7 +36,13 @@ export default function LayoutTest({ children }) {
             href="/login"
             className="nav-item"
             title="Cerrar Sesión"
-            onClick={() => borrarToken()}
+                        onClick={(e) => {
+              if (!window.confirm('¿Seguro que quieres cerrar sesión?')) {
+                e.preventDefault();
+                return;
+              }
+              borrarToken();
+            }}
           >
             <img src="/img/Salir.png" alt="Cerrar Sesión" className="nav-icon" />
           </Link>
