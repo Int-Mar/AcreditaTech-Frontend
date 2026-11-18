@@ -21,3 +21,18 @@ export async function obtenerPadron(tipo, filtros = {}) {
   });
   return res.data;
 }
+
+export async function cambiarEstatus(correo, estatus) {
+  const res = await axios.put('/api/administracion/estatus', { correo, estatus }, encabezadoAuth());
+  return res.data;
+}
+
+export async function obtenerPerfilAdmin() {
+  const res = await axios.get('/api/administracion/perfil', encabezadoAuth());
+  return res.data;
+}
+
+export async function editarPerfilAdmin(nombre) {
+  const res = await axios.put('/api/administracion/perfil', { nombre }, encabezadoAuth());
+  return res.data;
+}
