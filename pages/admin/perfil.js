@@ -18,8 +18,9 @@ export default function PerfilAdmin() {
   async function cargarPerfil() {
     try {
       const data = await obtenerPerfilAdmin();
-      setPerfil(data.perfil);
-      setNombre(data.perfil.nombre);
+            const datosPerfil = data.perfil || data;
+      setPerfil(datosPerfil);
+      setNombre(datosPerfil.nombre);
     } catch (e) {
       if (!redirigirSiNoAutorizado(e, router)) {
         setMensaje(e.response?.data?.mensaje || 'Error al obtener el perfil');
