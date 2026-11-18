@@ -183,5 +183,50 @@ export default function Cuestionario({ tipo }) {
     );
   }
 
+  if (fase === 'resultado' && resultado) {
+    const aprobado = resultado.aprobado;
+
+    return (
+      <main className="result-content-area">
+        <div className="result-card-container">
+          <h2 className="result-main-title">{textos.resultadoTitulo}</h2>
+          <p className="result-subtitle">Resultado obtenido</p>
+
+          <div className={'result-score-box ' + (aprobado ? 'success' : 'danger')}>
+            <span className="result-percentage">{resultado.calificacion}%</span>
+            <span className="result-aciertos">
+              Puntaje: {resultado.calificacion} de 100
+            </span>
+          </div>
+
+          <div className="result-message-block">
+            <h3 className="result-status-heading">¡Has terminado!</h3>
+            <p className="result-status-text">
+              {aprobado
+                ? '¡Felicidades, has conseguido un buen puntaje y eres apto!'
+                : 'Todavía no alcanzas el puntaje necesario. Puedes volver a intentarlo.'}
+            </p>
+
+            {!aprobado && estado && (
+              <p className="result-status-text">
+                Intentos usados: {estado.intentos_usados} de {estado.max_intentos}.
+                {estado.bloqueado &&
+                  ` Podrás intentarlo de nuevo el ${new Date(
+                    estado.bloqueado_hasta
+                  ).toLocaleString('es-MX')}.`}
+              </p>
+            )}
+          </div>
+
+          <div className="result-action-container">
+            <Link href="/usuario/menu" className="btn-volver-panel">
+              Volver a mi panel
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return null;
 }
