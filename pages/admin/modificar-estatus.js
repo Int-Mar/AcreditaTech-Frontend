@@ -29,11 +29,6 @@ export default function ModificarEstatus() {
   async function enviar(e) {
     e.preventDefault();
     setMensaje({ texto: '', tipo: '' });
-    setEnviando(true);
-    try {
-      const data = await cambiarEstatus(correo, estatus);
-      setMensaje({ texto: data.mensaje, tipo: 'exito' });
-      
     const correoLimpio = correo.trim().toLowerCase();
     if (!/^[^\s@]+@gmail\.com$/i.test(correoLimpio) || correoLimpio.length > 50) {
       setMensaje({
@@ -42,6 +37,14 @@ export default function ModificarEstatus() {
       });
       return;
     }
+    
+    if (!window.confirm(`¿Cambiar el estatus de ${correoLimpio} a "${estatus}"?`)) {
+      return;
+    }
+    setEnviando(true);
+    try {
+      const data = await cambiarEstatus(correo, estatus);
+      setMensaje({ texto: data.mensaje, tipo: 'exito' });
       setCorreo('');
       setEstatus('');
     } catch (err) {
