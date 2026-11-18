@@ -136,6 +136,52 @@ export default function Cuestionario({ tipo }) {
       </main>
     );
   }
+  if (fase === 'pregunta' && datos) {
+    return (
+      <main className="quiz-content-area">
+        <div className="quiz-card-socrative">
+          <div className="quiz-counter">
+            Pregunta {datos.caso} de {datos.total_casos}
+          </div>
+
+          <div className="quiz-question-title">{datos.pregunta.texto}</div>
+
+          <div className="quiz-options-container">
+            {datos.pregunta.opciones.map((opcion) => (
+              <button
+                key={opcion.id_opcion}
+                type="button"
+                className={
+                  'quiz-option-btn' +
+                  (opcionElegida === opcion.id_opcion ? ' selected' : '')
+                }
+                onClick={() => setOpcionElegida(opcion.id_opcion)}
+              >
+                {opcion.texto}
+              </button>
+            ))}
+          </div>
+
+          {mensajeError}
+
+          <div className="quiz-submit-container">
+            <button
+              type="button"
+              className="btn-subir-respuesta"
+              style={{
+                cursor: 'pointer',
+                opacity: !opcionElegida || cargando ? 0.5 : 1,
+              }}
+              onClick={enviar}
+              disabled={!opcionElegida || cargando}
+            >
+              {cargando ? 'Enviando...' : 'Subir respuesta'}
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return null;
 }
