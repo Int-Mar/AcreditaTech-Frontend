@@ -13,7 +13,10 @@ export default function LayoutAdmin({ activo, children }) {
     return () => document.body.classList.remove('dashboard-body');
   }, []);
 
-  function cerrarSesion() {
+    function cerrarSesion() {
+    if (!window.confirm('¿Seguro que quieres cerrar sesión?')) {
+      return;
+    }
     borrarToken();
     router.push('/login');
   }
