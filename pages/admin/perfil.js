@@ -37,6 +37,9 @@ export default function PerfilAdmin() {
       setEditando(false);
       return;
     }
+        if (!window.confirm('¿Guardar los cambios de tu perfil?')) {
+      return;
+    }
 
     try {
       const data = await editarPerfilAdmin(nombre);
