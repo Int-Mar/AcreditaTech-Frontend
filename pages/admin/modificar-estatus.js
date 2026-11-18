@@ -51,7 +51,43 @@ export default function ModificarEstatus() {
     <LayoutAdmin activo="estatus">
       <main className="status-content-area">
         <div className="status-card">
-          <h2 className="status-card-title">Modificar Estatus</h2>
+
+          <div className="status-card-header">
+            <div className="status-card-logo">
+              <img src="/img/LogoAzul.png" alt="AcreditaTech" />
+              <span>AcreditaTech</span>
+            </div>
+            <h2 className="status-card-title">Modificar Estatus</h2>
+          </div>
+
+          <form className="status-form" onSubmit={enviar}>
+            <div className="status-form-group">
+              <label>Correo electrónico del trabajador a modificar estatus</label>
+              <input type="email" placeholder="ejemplo: juanpg@gmail.com" required
+                value={correo} onChange={(e) => setCorreo(e.target.value)} />
+            </div>
+
+            <div className="status-form-group">
+              <label>Estatus</label>
+              <select required value={estatus} onChange={(e) => setEstatus(e.target.value)}>
+                <option value="" disabled>Elije el estatus al que deseas cambiar</option>
+                {listaEstatus.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            <button type="submit" className="btn-status-submit" disabled={enviando}>
+              {enviando ? 'Guardando...' : 'Cambiar estatus'}
+            </button>
+
+            {mensaje.texto && (
+              <p className={`${estilos.mensajeFormulario} ${mensaje.tipo === 'exito' ? estilos.exito : estilos.error}`}>
+                {mensaje.texto}
+              </p>
+            )}
+          </form>
+
         </div>
       </main>
     </LayoutAdmin>
