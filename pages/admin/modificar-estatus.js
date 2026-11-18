@@ -33,6 +33,15 @@ export default function ModificarEstatus() {
     try {
       const data = await cambiarEstatus(correo, estatus);
       setMensaje({ texto: data.mensaje, tipo: 'exito' });
+      
+    const correoLimpio = correo.trim().toLowerCase();
+    if (!/^[^\s@]+@gmail\.com$/i.test(correoLimpio) || correoLimpio.length > 50) {
+      setMensaje({
+        texto: 'El correo debe terminar en @gmail.com (máximo 50 caracteres)',
+        tipo: 'error'
+      });
+      return;
+    }
       setCorreo('');
       setEstatus('');
     } catch (err) {
