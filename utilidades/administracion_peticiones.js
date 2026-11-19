@@ -28,3 +28,9 @@ export async function cambiarBloqueo(id, bloqueado) {
   );
   return res.data;
 }
+
+
+export async function obtenerEstadisticas() {
+  const res = await axios.get('/api/administracion/estadisticas', encabezadoAuth());
+  return res.data;
+}
