@@ -40,3 +40,32 @@ a {
     color-scheme: dark;
   }
 }
+
+.top-bar-oficio {
+    margin-left: auto;
+    padding-right: 35px;
+    display: flex;
+    align-items: center;
+}
+
+.top-bar-oficio .icono-oficio {
+    height: 48px;
+    width: auto;
+}
+
+.profile-nombre-fila {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 25px;
+}
+
+.profile-nombre-fila .profile-user-name {
+    margin-bottom: 0;
+}
+
+.icono-oficio-perfil {
+    height: 50px;
+    width: auto;
+}

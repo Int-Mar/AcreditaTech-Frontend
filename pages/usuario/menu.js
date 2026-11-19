@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { leerToken, borrarToken } from '../../utilidades/peticiones';
 import Link from 'next/link';
+import IconoOficio from '../../componentes/iconoOficio';
 
 export default function MenuUsuario() {
   const router = useRouter();
@@ -49,6 +50,10 @@ export default function MenuUsuario() {
           <div className="logo-container">
             <img src="/img/LogoBlanco.png" alt="AcreditaTech" className="logo-img" />
             <span className="logo-text">AcreditaTech</span>
+          </div>
+
+          <div style={{ marginLeft: 'auto', paddingRight: '35px', display: 'flex', alignItems: 'center' }}>
+            <IconoOficio alto={48} />
           </div>
         </header>
 
