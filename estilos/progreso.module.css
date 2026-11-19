@@ -1,0 +1,132 @@
+/* progreso.module.css
+   Estilos propios de la pantalla de Progreso.
+   Las tarjetas de cada evaluación usan las clases que ya existen en globals.css
+   (progress-card, progress-badge-box...). Aquí solo van las piezas nuevas. */
+
+/* Tarjeta grande con el avance general */
+.resumen {
+  background-color: #f7f5ef;
+  border-radius: 14px;
+  padding: 24px 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.resumenEncabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.resumenTitulo {
+  font-family: "Inria Serif", serif;
+  color: #1b313f;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Etiqueta con el estatus (En Diagnóstico, Preparación Completada, Vencida) */
+.estatus {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 999px;
+  background-color: #e3dfd3;
+  color: #1b313f;
+}
+
+.estatusCompleto {
+  background-color: #cfe9d3;
+  color: #1f5a2c;
+}
+
+.estatusVencida {
+  background-color: #f6d3d0;
+  color: #8c2a22;
+}
+
+/* Barra de progreso */
+.barra {
+  width: 100%;
+  height: 22px;
+  background-color: #e3dfd3;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.barraRelleno {
+  height: 100%;
+  background: linear-gradient(90deg, #f7931e, #f4d06f);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.barraTexto {
+  font-family: "Anton", sans-serif;
+  color: #1b313f;
+  font-size: 2.2rem;
+  line-height: 1;
+  margin: 12px 0 0;
+}
+
+/* Lista de lo que falta */
+.checklist {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklistItem {
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.marca {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background-color: #e3dfd3;
+  color: #555555;
+  flex-shrink: 0;
+}
+
+.marcaListo {
+  background-color: #2e8b45;
+  color: #ffffff;
+}
+
+/* Mensajes de carga y de error */
+.mensaje {
+  font-family: "Inter", sans-serif;
+  color: #f7f5ef;
+  font-size: 1rem;
+  padding: 30px;
+}
+
+.mensajeError {
+  color: #f6b8b3;
+}
+
+@media (max-width: 768px) {
+  .resumen {
+    padding: 20px;
+  }
+}
