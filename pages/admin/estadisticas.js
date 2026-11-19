@@ -60,6 +60,17 @@ export default function EstadisticasAdmin() {
 
               <Lista titulo="Por estatus" filas={datos.por_estado} campoNombre="estatus" />
               <Lista titulo="Por oficio" filas={datos.por_oficio} campoNombre="nombre_oficio" />
+              <Lista titulo="Por alcaldía" filas={datos.por_alcaldia} campoNombre="nombre_alcaldia" />
+
+              <section className={estilos.tarjeta}>
+                <h3 className={estilos.titulo}>Promedio de calificación por test</h3>
+                {datos.promedio_por_test.map((t) => (
+                  <p key={t.id_tipo_evaluacion} style={{ margin: '0.3rem 0' }}>
+                    {t.nombre}:{' '}
+                    <strong>{t.promedio === null ? 'Sin intentos' : t.promedio}</strong>
+                  </p>
+                ))}
+              </section>
 
             </>
           )}
