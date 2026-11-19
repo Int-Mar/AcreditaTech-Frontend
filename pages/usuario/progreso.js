@@ -27,6 +27,35 @@ function ItemChecklist({ texto, aprobada }) {
   );
 }
 
+// Tarjeta de una evaluación (usa las clases de globals.css)
+function TarjetaEvaluacion({
+  titulo,
+  descripcion,
+  ruta,
+  intentos,
+  valor,
+  detalle,
+}) {
+  return (
+    <div className="progress-card">
+      <div className="progress-card-info">
+        <h3>{titulo}</h3>
+        <p>{descripcion}</p>
+        <a href={ruta} className="btn-volver-empezar">
+          {intentos === 0 ? "Empezar" : "Volver a empezar"}
+        </a>
+      </div>
+      <div className="progress-badge-box">
+        <div className="progress-percentage">{valor}</div>
+        <div className="progress-details">{detalle}</div>
+      </div>
+    </div>
+  );
+}
+
+// Máximo de intentos por evaluación (el mismo valor que usa el Backend)
+const MAX_INTENTOS = 5;
+
 export default function Progreso() {
   const router = useRouter();
   const [avance, setAvance] = useState(null);
@@ -68,6 +97,27 @@ export default function Progreso() {
               />
             </ul>
           </section>
+        )}
+
+        {avance && (
+          <>
+            <TarjetaEvaluacion
+              titulo="Test Técnico"
+              descripcion="Resuelve casos prácticos de tu oficio y demuestra lo que sabes."
+              ruta="/usuario/test-tecnico"
+              intentos={avance.tecnica.intentos}
+              valor={`${avance.tecnica.calificacion}`}
+              detalle={`Puntos de 100 · Intentos: ${avance.tecnica.intentos} de ${MAX_INTENTOS}`}
+            />
+            <TarjetaEvaluacion
+              titulo="Salud Ocupacional"
+              descripcion="Lee cada situación y elige cómo actuarías para cuidar tu salud en el trabajo."
+              ruta="/usuario/test-salud"
+              intentos={avance.salud.intentos}
+              valor={avance.salud.estado}
+              detalle={`Intentos: ${avance.salud.intentos} de ${MAX_INTENTOS}`}
+            />
+          </>
         )}
       </main>
     </LayoutTest>
