@@ -17,3 +17,9 @@ export async function guardarFicha(datos) {
   const res = await axios.put('/api/salud/ficha', datos, encabezadoAuth());
   return res.data;
 }
+
+
+export async function obtenerPreventiva() {
+  const res = await axios.get('/api/salud/preventiva', encabezadoAuth());
+  return res.data;
+}
