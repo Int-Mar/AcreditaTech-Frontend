@@ -126,6 +126,16 @@ export default function Constancia() {
               </div>
             )}
 
+            {!constancia.tiene_constancia && !constancia.puede_generar && (
+              <p className={estilos.aviso}>
+                Aún no puedes generar tu Pre-Constancia. Aprueba la evaluación
+                técnica y la de salud ocupacional.{" "}
+                <a href="/usuario/progreso" className={estilos.enlace}>
+                  Ver mi avance
+                </a>
+              </p>
+            )}
+
             <button
               className={`${estilos.boton} ${puedeDescargar ? "" : estilos.botonInactivo}`}
               disabled={!puedeDescargar || descargando}
