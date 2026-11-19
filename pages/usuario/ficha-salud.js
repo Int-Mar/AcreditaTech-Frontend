@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import LayoutTest from '../../componentes/LayoutTest';
 import { leerToken } from '../../utilidades/peticiones';
-import { obtenerFicha, guardarFicha } from '../../utilidades/salud_peticiones';
+import { obtenerFicha, guardarFicha, obtenerPreventiva } from '../../utilidades/salud_peticiones';
 import estilos from '../../estilos/salud.module.css';
 
 const NIVELES = ['Ninguno', 'Leve', 'Moderado', 'Fuerte'];
@@ -28,6 +28,8 @@ export default function FichaSalud() {
   const [ficha, setFicha] = useState(FICHA_VACIA);
   const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
   const [guardando, setGuardando] = useState(false);
+  const [preventiva, setPreventiva] = useState(null);
+  const [sinTest, setSinTest] = useState(false);
 
   useEffect(() => {
     if (!leerToken()) { router.push('/login'); return; }
@@ -43,6 +45,13 @@ export default function FichaSalud() {
         });
       } catch (e) {
         if (e.response?.status === 401) router.push('/login');
+      }
+
+      try {
+        setPreventiva(await obtenerPreventiva());
+      } catch (e) {
+        if (e.response?.status === 401) router.push('/login');
+        else if (e.response?.status === 404) setSinTest(true);
       }
     }
     cargar();
@@ -70,6 +79,12 @@ export default function FichaSalud() {
       });
       setMensaje({ texto: 'Ficha guardada correctamente', tipo: 'exito' });
     } catch (err) {
+          // En salud el resultado se guarda como Aprobado / No aprobado;
+  // al trabajador se le muestra como Apto / Necesita reforzamiento
+  const apto = preventiva?.resultado === 'Aprobado';
+  const pendiente = preventiva?.resultado === 'Pendiente';
+  const claseEtiqueta = pendiente ? estilos.pendiente : apto ? estilos.apto : estilos.refuerzo;
+  const textoEtiqueta = pendiente ? 'Pendiente' : apto ? 'Apto' : 'Necesita reforzamiento';
       if (err.response?.status === 401) { router.push('/login'); return; }
       setMensaje({
         texto: err.response?.data?.error || 'No se pudo guardar la ficha',
@@ -147,6 +162,43 @@ export default function FichaSalud() {
             </form>
           </section>
 
+
+          <section className={estilos.tarjeta}>
+            <h2 className={estilos.titulo}>Mi Ficha Preventiva</h2>
+
+            {sinTest && (
+              <p>Aún no has contestado el test de salud ocupacional. Cuando lo termines, aquí verás tus recomendaciones.</p>
+            )}
+
+            {preventiva && (
+              <>
+                <span className={`${estilos.etiqueta} ${claseEtiqueta}`}>
+                  {textoEtiqueta}
+                </span>
+
+                {preventiva.areas_a_reforzar.length > 0 && (
+                  <>
+                    <h3>Áreas a reforzar</h3>
+                    <ul>
+                      {preventiva.areas_a_reforzar.map((a) => <li key={a}>{a}</li>)}
+                    </ul>
+                  </>
+                )}
+
+                <h3>Recomendaciones</h3>
+                {preventiva.ficha_preventiva.length === 0 && (
+                  <p>No hay recomendaciones pendientes. ¡Buen trabajo!</p>
+                )}
+                {preventiva.ficha_preventiva.map((item, i) => (
+                  <div key={i} className={`${estilos.item} ${estilos[item.color]}`}>
+                    <div className={estilos.itemTema}>{item.tema}</div>
+                    <div className={estilos.itemRespuesta}>Tu respuesta: {item.respuesta}</div>
+                    <div>{item.recomendacion}</div>
+                  </div>
+                ))}
+              </>
+            )}
+          </section>
 
         </main>
       </LayoutTest>
