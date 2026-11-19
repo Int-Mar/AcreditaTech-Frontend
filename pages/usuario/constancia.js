@@ -136,6 +136,17 @@ export default function Constancia() {
               </p>
             )}
 
+            {constancia.tiene_constancia && !vigente && (
+              <p className={`${estilos.aviso} ${estilos.avisoError}`}>
+                Tu Pre-Constancia venció el{" "}
+                {formatearFecha(constancia.vigente_hasta)}. Para renovarla,
+                vuelve a presentar tus evaluaciones.{" "}
+                <a href="/usuario/progreso" className={estilos.enlace}>
+                  Ver mi avance
+                </a>
+              </p>
+            )}
+
             <button
               className={`${estilos.boton} ${puedeDescargar ? "" : estilos.botonInactivo}`}
               disabled={!puedeDescargar || descargando}
