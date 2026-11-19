@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import LayoutTest from "../../componentes/LayoutTest";
 import BarraAvance from "../../componentes/BarraAvance";
-import { leerToken } from "../../utilidades/peticiones";
+import { leerToken, borrarToken } from "../../utilidades/peticiones";
 import { obtenerAvance } from "../../utilidades/avance_peticiones";
 import estilos from "../../estilos/progreso.module.css";
 
@@ -59,6 +59,8 @@ const MAX_INTENTOS = 5;
 export default function Progreso() {
   const router = useRouter();
   const [avance, setAvance] = useState(null);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Sin sesión no se puede ver el avance
@@ -67,12 +69,33 @@ export default function Progreso() {
       return;
     }
 
-    obtenerAvance().then(setAvance);
+    obtenerAvance()
+      .then(setAvance)
+      .catch((err) => {
+        // Token vencido o inválido: se borra y se manda a iniciar sesión
+        if (err.response && err.response.status === 401) {
+          borrarToken();
+          router.push("/login");
+          return;
+        }
+        setError(
+          "No pudimos cargar tu avance. Intenta de nuevo en un momento.",
+        );
+      })
+      .finally(() => setCargando(false));
   }, []);
 
   return (
     <LayoutTest>
       <main className="progress-content-grid">
+        {cargando && <p className={estilos.mensaje}>Cargando tu avance...</p>}
+
+        {error && (
+          <p className={`${estilos.mensaje} ${estilos.mensajeError}`}>
+            {error}
+          </p>
+        )}
+
         {avance && (
           <section className={estilos.resumen}>
             <div className={estilos.resumenEncabezado}>
