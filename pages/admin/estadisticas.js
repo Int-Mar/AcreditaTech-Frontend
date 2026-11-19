@@ -7,6 +7,21 @@ import { redirigirSiNoAutorizado } from '../../utilidades/admin_peticiones';
 import { obtenerEstadisticas } from '../../utilidades/administracion_peticiones';
 import estilos from '../../estilos/salud.module.css';
 
+
+function Lista({ titulo, filas, campoNombre }) {
+  return (
+    <section className={estilos.tarjeta}>
+      <h3 className={estilos.titulo}>{titulo}</h3>
+      {filas.length === 0 && <p>Sin datos todavía</p>}
+      {filas.map((f) => (
+        <p key={f[campoNombre]} style={{ margin: '0.3rem 0' }}>
+          {f[campoNombre]}: <strong>{f.cantidad}</strong>
+        </p>
+      ))}
+    </section>
+  );
+}
+
 export default function EstadisticasAdmin() {
   const router = useRouter();
   const [datos, setDatos] = useState(null);
@@ -43,6 +58,8 @@ export default function EstadisticasAdmin() {
                 </p>
               </section>
 
+              <Lista titulo="Por estatus" filas={datos.por_estado} campoNombre="estatus" />
+              <Lista titulo="Por oficio" filas={datos.por_oficio} campoNombre="nombre_oficio" />
 
             </>
           )}
