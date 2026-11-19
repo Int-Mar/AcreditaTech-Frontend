@@ -5,10 +5,10 @@ import { useRouter } from 'next/router';
 import LayoutAdmin from '../../componentes/admin/LayoutAdmin';
 import { obtenerCatalogos } from '../../utilidades/peticiones';
 import { redirigirSiNoAutorizado } from '../../utilidades/admin_peticiones';
-import { listarUsuarios } from '../../utilidades/administracion_peticiones';
+import { listarUsuarios, cambiarBloqueo } from '../../utilidades/administracion_peticiones';
 import estilos from '../../estilos/admin.module.css';
 
-const COLUMNAS = { gridTemplateColumns: '1.6fr 2fr 1.4fr 1.4fr 1.4fr' };
+const COLUMNAS = { gridTemplateColumns: '1.6fr 2fr 1.4fr 1.4fr 1.4fr 1fr 1fr' };
 
 export default function UsuariosAdmin() {
   const router = useRouter();
@@ -50,6 +50,20 @@ export default function UsuariosAdmin() {
 
     function cambiarFiltro(campo, valor) {
     setFiltros({ ...filtros, [campo]: valor });
+  }
+
+    async function alternarBloqueo(usuario) {
+    const accion = usuario.bloqueado ? 'desbloquear' : 'bloquear';
+    if (!window.confirm(`¿Seguro que quieres ${accion} a ${usuario.nombre}?`)) return;
+    setError('');
+    try {
+      await cambiarBloqueo(usuario.id_usuario, !usuario.bloqueado);
+      cargar(filtros);
+    } catch (e) {
+      if (!redirigirSiNoAutorizado(e, router)) {
+        setError(e.response?.data?.error || 'No se pudo cambiar el bloqueo');
+      }
+    }
   }
 
   return (
@@ -94,6 +108,8 @@ export default function UsuariosAdmin() {
               <span>Alcaldía</span>
               <span>Oficio</span>
               <span>Estatus</span>
+              <span>Acceso</span>
+              <span>Acción</span>
             </div>
             <div className="admin-table-body">
               {cargando && <p className={estilos.mensajeTabla}>Cargando...</p>}
@@ -109,6 +125,15 @@ export default function UsuariosAdmin() {
                   <span>{u.nombre_alcaldia}</span>
                   <span>{u.nombre_oficio}</span>
                   <span>{u.estatus}</span>
+                  <span>{u.bloqueado ? 'Bloqueado' : 'Activo'}</span>
+                  <span>
+                    {u.id_tipo_usuario === 1 ? (
+                      <button type="button" className={estilos.btnFiltro}
+                        onClick={() => alternarBloqueo(u)}>
+                        {u.bloqueado ? 'Desbloquear' : 'Bloquear'}
+                      </button>
+                    ) : 'Admin'}
+                  </span>
                 </div>
               ))}
             </div>
