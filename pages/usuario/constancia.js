@@ -34,6 +34,7 @@ export default function Constancia() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [descargando, setDescargando] = useState(false);
+  const [errorDescarga, setErrorDescarga] = useState("");
 
   useEffect(() => {
     // Sin sesión no se puede ver la Pre-Constancia
@@ -60,11 +61,17 @@ export default function Constancia() {
   // Descarga el PDF y vuelve a pedir el estado (la primera vez se crea el folio)
   async function descargar() {
     setDescargando(true);
+    setErrorDescarga("");
     try {
       await descargarConstanciaPdf();
       setConstancia(await obtenerEstadoConstancia());
     } catch (err) {
-      console.error("No se pudo descargar la Pre-Constancia:", err);
+      // Si el Backend mandó un mensaje (por ejemplo, 403) se muestra tal cual
+      const mensaje =
+        err.response && err.response.data && err.response.data.mensaje;
+      setErrorDescarga(
+        mensaje || "No se pudo descargar tu Pre-Constancia. Intenta de nuevo.",
+      );
     } finally {
       setDescargando(false);
     }
@@ -144,6 +151,12 @@ export default function Constancia() {
                 <a href="/usuario/progreso" className={estilos.enlace}>
                   Ver mi avance
                 </a>
+              </p>
+            )}
+
+            {errorDescarga && (
+              <p className={`${estilos.aviso} ${estilos.avisoError}`}>
+                {errorDescarga}
               </p>
             )}
 
