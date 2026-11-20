@@ -70,6 +70,18 @@ export default function PerfilUsuario() {
   async function cambiarFoto(e) {
     const archivo = e.target.files[0];
     if (!archivo) return;
+    
+    if (!['image/jpeg', 'image/png'].includes(archivo.type)) {
+      setMensaje('Solo se permiten imágenes JPG o PNG');
+      e.target.value = '';
+      return;
+    }
+    if (archivo.size > 2 * 1024 * 1024) {
+      setMensaje('La imagen no debe pesar más de 2 MB');
+      e.target.value = '';
+      return;
+    }
+
     try {
       await subirFoto(archivo);
       cargarPerfil();
