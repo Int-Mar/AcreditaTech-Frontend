@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { leerToken, borrarToken, obtenerPerfil, editarPerfil, subirFoto } from '../../utilidades/peticiones';
 import Link from 'next/link';
+import IconoOficio from '../../componentes/iconoOficio';
 
 export default function PerfilUsuario() {
   const router = useRouter();
@@ -109,7 +110,11 @@ export default function PerfilUsuario() {
             </div>
 
             <div className="profile-card">
-              <h2 className="profile-user-name">{perfil.nombre}</h2>
+              {/* Ícono del oficio + nombre en la misma línea */}
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', marginBottom: '25px' }}>
+                <IconoOficio oficio={perfil.nombre_oficio} alto={50} />
+                <h2 className="profile-user-name" style={{ marginBottom: 0 }}>{perfil.nombre}</h2>
+              </div>
 
               <div className="profile-form-box">
                 <h3 className="profile-section-title">{perfil.nombre_oficio || 'OFICIO'}</h3>
