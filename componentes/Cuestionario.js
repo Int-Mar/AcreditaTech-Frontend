@@ -1,3 +1,13 @@
+// Cuestionario.js
+// Un solo componente para los tests. Recibe el tipo: 1 = técnico, 2 = salud.
+// Tiene tres fases: "inicio" (ventanasTest.html), "pregunta" (QuizOpMultiple.html)
+// y "resultado" (VentanaResultado.html).
+// La Persona 4 lo reutiliza para el test de salud con <Cuestionario tipo={2} />.
+//
+// Cambios para el test de salud (Documento Maestro):
+// - Las preguntas de casillas (tipo_pregunta = 'checkbox') permiten marcar varias opciones.
+// - En salud el resultado muestra "Apto" o "Necesita reforzamiento", nunca el número.
+
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,6 +19,7 @@ import {
   obtenerEstadoTest,
 } from '../utilidades/evaluaciones_peticiones';
 
+// Textos que cambian según el tipo de test (edítalos si el equipo quiere otros)
 const TEXTOS = {
   1: {
     titulo: 'Test Técnico',
@@ -26,50 +37,34 @@ const TEXTOS = {
   },
 };
 
-function fondoDeOficio(nombreOficio) {
-  const o = (nombreOficio || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-
-  if (o.includes('electr'))  return '/img/fondo-electricista.png';
-  if (o.includes('plom'))    return '/img/fondo-plomeria.png';
-  if (o.includes('carpint')) return '/img/fondo-carpintero.png';
-  if (o.includes('alban'))   return '/img/fondo-albanil.png';
-  return null;
-}
-
+// Los botones reemplazan a los enlaces <a> del maquetado
 const estiloBoton = { border: 'none', cursor: 'pointer' };
+
+// La opción "Ninguno de estos" borra las demás marcas
+const esNinguno = (opcion) => opcion.texto.startsWith('Ninguno de estos');
 
 export default function Cuestionario({ tipo }) {
   const router = useRouter();
   const textos = TEXTOS[tipo] || TEXTOS[1];
+  const esSalud = tipo === 2;
 
-  const [fase, setFase] = useState('inicio');
-  const [datos, setDatos] = useState(null);
-  const [opcionElegida, setOpcionElegida] = useState(null);
+  const [fase, setFase] = useState('inicio'); // inicio | pregunta | resultado
+  const [datos, setDatos] = useState(null); // la pregunta actual
+  const [seleccion, setSeleccion] = useState([]); // ids de las opciones elegidas
   const [resultado, setResultado] = useState(null);
   const [estado, setEstado] = useState(null);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
   const [fondo, setFondo] = useState(null);
 
+  // Si no hay sesión iniciada, mandar al login
   useEffect(() => {
     if (!leerToken()) {
       router.push('/login');
     }
   }, [router]);
 
-  useEffect(() => {
-    if (tipo !== 1) return;
-    obtenerPerfil()
-      .then(data => {
-        const info = data.perfil || data;
-        setFondo(fondoDeOficio(info.nombre_oficio));
-      })
-      .catch(() => {});
-  }, [tipo]);
-
+  // Muestra el mensaje del servidor (por ejemplo, el bloqueo de 24 horas)
   function manejarError(err) {
     if (err.response?.status === 401) {
       router.push('/login');
@@ -83,6 +78,7 @@ export default function Cuestionario({ tipo }) {
     setError(mensaje);
   }
 
+  // Botón "Iniciar Test": empieza (o continúa) y muestra la pregunta actual
   async function empezar() {
     setError('');
     setCargando(true);
@@ -90,7 +86,7 @@ export default function Cuestionario({ tipo }) {
       await iniciarTest(tipo);
       const pregunta = await obtenerPregunta(tipo);
       setDatos(pregunta);
-      setOpcionElegida(null);
+      setSeleccion([]);
       setFase('pregunta');
     } catch (err) {
       manejarError(err);
@@ -99,15 +95,44 @@ export default function Cuestionario({ tipo }) {
     }
   }
 
+  const esCasillas = datos?.pregunta?.tipo_pregunta === 'checkbox';
+
+  // Elegir una opción: en casillas se marcan varias, en las demás solo una
+  function elegir(opcion) {
+    if (!esCasillas) {
+      setSeleccion([opcion.id_opcion]);
+      return;
+    }
+
+    // "Ninguno de estos" borra las demás marcas
+    if (esNinguno(opcion)) {
+      setSeleccion([opcion.id_opcion]);
+      return;
+    }
+
+    // Al marcar otra, se quita "Ninguno"
+    const ninguno = datos.pregunta.opciones.find(esNinguno);
+    const sinNinguno = seleccion.filter(
+      (id) => !ninguno || id !== ninguno.id_opcion
+    );
+
+    if (sinNinguno.includes(opcion.id_opcion)) {
+      setSeleccion(sinNinguno.filter((id) => id !== opcion.id_opcion));
+    } else {
+      setSeleccion([...sinNinguno, opcion.id_opcion]);
+    }
+  }
+
+  // Botón "Subir respuesta": manda la opción y pasa a la siguiente o al resultado
   async function enviar() {
-    if (!opcionElegida) return;
+    if (seleccion.length === 0) return;
     setError('');
     setCargando(true);
     try {
       const respuesta = await responderPregunta(
         tipo,
         datos.pregunta.id_pregunta,
-        opcionElegida
+        esCasillas ? seleccion : seleccion[0]
       );
 
       if (respuesta.finalizado) {
@@ -121,7 +146,7 @@ export default function Cuestionario({ tipo }) {
       } else {
         const siguiente = await obtenerPregunta(tipo);
         setDatos(siguiente);
-        setOpcionElegida(null);
+        setSeleccion([]);
       }
     } catch (err) {
       manejarError(err);
@@ -134,6 +159,7 @@ export default function Cuestionario({ tipo }) {
     <p style={{ color: 'red', fontSize: '0.9rem', margin: '0.5rem 0' }}>{error}</p>
   );
 
+  // ── Fase 1: inicio del test ─────────────────────────────────────────────
   if (fase === 'inicio') {
     return (
       <main className="test-intro-content-area">
@@ -161,6 +187,7 @@ export default function Cuestionario({ tipo }) {
     );
   }
 
+  // ── Fase 2: pregunta ────────────────────────────────────────────────────
   if (fase === 'pregunta' && datos) {
     return (
       <main
@@ -174,6 +201,12 @@ export default function Cuestionario({ tipo }) {
 
           <div className="quiz-question-title">{datos.pregunta.texto}</div>
 
+          {esCasillas && (
+            <p style={{ fontSize: '0.9rem', margin: '0 0 0.5rem' }}>
+              Puedes marcar varias opciones.
+            </p>
+          )}
+
           <div className="quiz-options-container">
             {datos.pregunta.opciones.map((opcion) => (
               <button
@@ -181,9 +214,9 @@ export default function Cuestionario({ tipo }) {
                 type="button"
                 className={
                   'quiz-option-btn' +
-                  (opcionElegida === opcion.id_opcion ? ' selected' : '')
+                  (seleccion.includes(opcion.id_opcion) ? ' selected' : '')
                 }
-                onClick={() => setOpcionElegida(opcion.id_opcion)}
+                onClick={() => elegir(opcion)}
               >
                 {opcion.texto}
               </button>
@@ -198,10 +231,10 @@ export default function Cuestionario({ tipo }) {
               className="btn-subir-respuesta"
               style={{
                 cursor: 'pointer',
-                opacity: !opcionElegida || cargando ? 0.5 : 1,
+                opacity: seleccion.length === 0 || cargando ? 0.5 : 1,
               }}
               onClick={enviar}
-              disabled={!opcionElegida || cargando}
+              disabled={seleccion.length === 0 || cargando}
             >
               {cargando ? 'Enviando...' : 'Subir respuesta'}
             </button>
@@ -211,6 +244,7 @@ export default function Cuestionario({ tipo }) {
     );
   }
 
+  // ── Fase 3: resultado ───────────────────────────────────────────────────
   if (fase === 'resultado' && resultado) {
     const aprobado = resultado.aprobado;
 
@@ -221,10 +255,19 @@ export default function Cuestionario({ tipo }) {
           <p className="result-subtitle">Resultado obtenido</p>
 
           <div className={'result-score-box ' + (aprobado ? 'success' : 'danger')}>
-            <span className="result-percentage">{resultado.calificacion}%</span>
-            <span className="result-aciertos">
-              Puntaje: {resultado.calificacion} de 100
-            </span>
+            {esSalud ? (
+              // En salud ocupacional solo se muestra la etiqueta, nunca el número
+              <span className="result-percentage" style={{ fontSize: '2rem' }}>
+                {aprobado ? 'Apto' : 'Necesita reforzamiento'}
+              </span>
+            ) : (
+              <>
+                <span className="result-percentage">{resultado.calificacion}%</span>
+                <span className="result-aciertos">
+                  Puntaje: {resultado.calificacion} de 100
+                </span>
+              </>
+            )}
           </div>
 
           <div className="result-message-block">
@@ -232,6 +275,8 @@ export default function Cuestionario({ tipo }) {
             <p className="result-status-text">
               {aprobado
                 ? '¡Felicidades, has conseguido un buen puntaje y eres apto!'
+                : esSalud
+                ? 'Necesitas reforzar algunas áreas. Revisa tu Ficha Preventiva y las guías. Puedes volver a intentarlo.'
                 : 'Todavía no alcanzas el puntaje necesario. Puedes volver a intentarlo.'}
             </p>
 
@@ -247,6 +292,11 @@ export default function Cuestionario({ tipo }) {
           </div>
 
           <div className="result-action-container">
+            {esSalud && (
+              <Link href="/usuario/ficha-salud" className="btn-volver-panel">
+                Ver mi Ficha Preventiva
+              </Link>
+            )}
             <Link href="/usuario/menu" className="btn-volver-panel">
               Volver a mi panel
             </Link>
