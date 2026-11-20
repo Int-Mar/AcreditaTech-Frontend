@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import LayoutAdmin from '../../componentes/admin/LayoutAdmin';
 import { obtenerPerfilAdmin, editarPerfilAdmin, redirigirSiNoAutorizado } from '../../utilidades/admin_peticiones';
+import { validarNombre } from '../../utilidades/validaciones';
 import estilos from '../../estilos/admin.module.css';
 
 export default function PerfilAdmin() {
@@ -32,17 +33,24 @@ export default function PerfilAdmin() {
     e.preventDefault();
     setMensaje('');
 
-    // Sin cambios: no se hace ninguna petición
     if (nombre.trim() === perfil.nombre) {
       setEditando(false);
       return;
     }
+
+    // Validar antes de pedir confirmación
+    const errorNombre = validarNombre(nombre);
+    if (errorNombre) {
+      setMensaje(errorNombre);
+      return;
+    }
+
         if (!window.confirm('¿Guardar los cambios de tu perfil?')) {
       return;
     }
 
     try {
-      const data = await editarPerfilAdmin(nombre);
+      const data = await editarPerfilAdmin(nombre.trim());
       setMensaje(data.mensaje);
       setEditando(false);
       cargarPerfil();
@@ -94,7 +102,8 @@ export default function PerfilAdmin() {
                     <label>Nombre</label>
                     <input type="text" className={estilos.inputEditable} value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
-                      pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{5,25}$"
+                      maxLength={25}
+                      pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]{5,25}$"
                       title="Solo letras, entre 5 y 25 caracteres" required />
                   </div>
                   <div className="profile-field">
