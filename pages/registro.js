@@ -175,8 +175,9 @@ export default function Registro() {
                 value={form.nombre}
                 onChange={manejarCambio}
                 required
-                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{5,25}$"
-                title="Solo letras, entre 5 y 25 caracteres"
+                maxLength={25}
+                autoComplete="name"
+                title="Solo letras y espacios, entre 5 y 25 caracteres"
               />
               {errores.nombre && <MensajeCampo texto={errores.nombre} />}
             </div>
@@ -190,7 +191,9 @@ export default function Registro() {
                 value={form.telefono}
                 onChange={manejarCambio}
                 required
-                pattern="^55\d{8}$"
+                maxLength={10}
+                inputMode="numeric"
+                autoComplete="tel-national"
                 title="10 dígitos comenzando con 55"
               />
               {errores.telefono && <MensajeCampo texto={errores.telefono} />}
@@ -205,6 +208,8 @@ export default function Registro() {
                 value={form.correo}
                 onChange={manejarCambio}
                 required
+                maxLength={50}
+                autoComplete="email"
               />
               {errores.correo && <MensajeCampo texto={errores.correo} />}
             </div>
@@ -214,10 +219,12 @@ export default function Registro() {
               <input
                 type="password"
                 name="contrasena"
-                placeholder="entre 8 y 20 caracteres"
+                placeholder="8-20: mayúscula, minúscula, número y símbolo"
                 value={form.contrasena}
                 onChange={manejarCambio}
                 required
+                maxLength={20}
+                autoComplete="new-password"
               />
               {errores.contrasena && (
                 <MensajeCampo texto={errores.contrasena} />
@@ -234,8 +241,9 @@ export default function Registro() {
                 onChange={manejarCambio}
                 required
                 maxLength={18}
-                pattern="^.{18}$"
-                title="Debe tener exactamente 18 caracteres"
+                autoComplete="off"
+                style={{ textTransform: "uppercase" }}
+                title="Letras y números con el formato oficial de la CURP"
               />
               {errores.curp && <MensajeCampo texto={errores.curp} />}
             </div>
