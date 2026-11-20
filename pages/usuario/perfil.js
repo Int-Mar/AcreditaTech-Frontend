@@ -1,22 +1,32 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { leerToken, borrarToken, obtenerPerfil, editarPerfil, subirFoto } from '../../utilidades/peticiones';
-import Link from 'next/link';
-import IconoOficio from '../../componentes/iconoOficio';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import {
+  leerToken,
+  borrarToken,
+  obtenerPerfil,
+  editarPerfil,
+  subirFoto,
+} from "../../utilidades/peticiones";
+import Link from "next/link";
+import { validarNombre, validarTelefono } from "../../utilidades/validaciones";
+import IconoOficio from "../../componentes/iconoOficio";
 
 export default function PerfilUsuario() {
   const router = useRouter();
   const [perfil, setPerfil] = useState(null);
   const [editando, setEditando] = useState(false);
-  const [nombre, setNombre] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [mensaje, setMensaje] = useState('');
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    if (!leerToken()) { router.push('/login'); return; }
-    document.body.classList.add('dashboard-body');
+    if (!leerToken()) {
+      router.push("/login");
+      return;
+    }
+    document.body.classList.add("dashboard-body");
     cargarPerfil();
-    return () => document.body.classList.remove('dashboard-body');
+    return () => document.body.classList.remove("dashboard-body");
   }, []);
 
   async function cargarPerfil() {
@@ -27,19 +37,33 @@ export default function PerfilUsuario() {
       setNombre(info.nombre);
       setTelefono(info.telefono);
     } catch (error) {
-      router.push('/login');
+      router.push("/login");
     }
   }
 
   async function guardarCambios(e) {
     e.preventDefault();
+    setMensaje("");
+
+    const nombreLimpio = nombre.trim();
+    const errorNombre = validarNombre(nombreLimpio);
+    if (errorNombre) {
+      setMensaje(errorNombre);
+      return;
+    }
+    const errorTelefono = validarTelefono(telefono);
+    if (errorTelefono) {
+      setMensaje(errorTelefono);
+      return;
+    }
+
     try {
-      await editarPerfil({ nombre, telefono });
-      setMensaje('Perfil actualizado');
+      await editarPerfil({ nombre: nombreLimpio, telefono });
+      setMensaje("Perfil actualizado");
       setEditando(false);
       cargarPerfil();
     } catch (error) {
-      setMensaje(error.response?.data?.mensaje || 'Error al actualizar');
+      setMensaje(error.response?.data?.mensaje || "Error al actualizar");
     }
   }
 
@@ -50,13 +74,13 @@ export default function PerfilUsuario() {
       await subirFoto(archivo);
       cargarPerfil();
     } catch (error) {
-      setMensaje(error.response?.data?.mensaje || 'Error al subir foto');
+      setMensaje(error.response?.data?.mensaje || "Error al subir foto");
     }
   }
 
   function cerrarSesion() {
     borrarToken();
-    router.push('/login');
+    router.push("/login");
   }
 
   if (!perfil) return null;
@@ -76,11 +100,24 @@ export default function PerfilUsuario() {
           </Link>
         </nav>
         <div className="sidebar-bottom">
-          <Link href="/usuario/perfil" className="nav-item active" title="Perfil">
+          <Link
+            href="/usuario/perfil"
+            className="nav-item active"
+            title="Perfil"
+          >
             <img src="/img/Perfil.png" alt="Perfil" className="nav-icon" />
           </Link>
-          <button onClick={cerrarSesion} className="nav-item" title="Salir"
-            style={{background:'none', border:'none', cursor:'pointer', padding:0}}>
+          <button
+            onClick={cerrarSesion}
+            className="nav-item"
+            title="Salir"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
             <img src="/img/Salir.png" alt="Salir" className="nav-icon" />
           </button>
         </div>
@@ -89,7 +126,11 @@ export default function PerfilUsuario() {
       <div className="main-area">
         <header className="top-bar">
           <div className="logo-container">
-            <img src="/img/LogoBlanco.png" alt="AcreditaTech" className="logo-img" />
+            <img
+              src="/img/LogoBlanco.png"
+              alt="AcreditaTech"
+              className="logo-img"
+            />
             <span className="logo-text">AcreditaTech</span>
           </div>
         </header>
@@ -97,29 +138,60 @@ export default function PerfilUsuario() {
         <main className="profile-content-area">
           <div className="profile-card-wrapper">
             <div className="profile-avatar-container">
-              <label htmlFor="inputFoto" style={{cursor:'pointer'}}>
+              <label htmlFor="inputFoto" style={{ cursor: "pointer" }}>
                 <div className="profile-avatar-circle">
-                  {perfil.foto_url
-                    ? <img src={perfil.foto_url} alt="Foto" style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} />
-                    : <i className="fa-solid fa-user"></i>
-                  }
+                  {perfil.foto_url ? (
+                    <img
+                      src={perfil.foto_url}
+                      alt="Foto"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
+                    <i className="fa-solid fa-user"></i>
+                  )}
                 </div>
               </label>
-              <input id="inputFoto" type="file" accept="image/jpeg,image/png"
-                style={{display:'none'}} onChange={cambiarFoto} />
+              <input
+                id="inputFoto"
+                type="file"
+                accept="image/jpeg,image/png"
+                style={{ display: "none" }}
+                onChange={cambiarFoto}
+              />
             </div>
 
             <div className="profile-card">
               {/* Ícono del oficio + nombre en la misma línea */}
-              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', marginBottom: '25px' }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "14px",
+                  marginBottom: "25px",
+                }}
+              >
                 <IconoOficio oficio={perfil.nombre_oficio} alto={50} />
-                <h2 className="profile-user-name" style={{ marginBottom: 0 }}>{perfil.nombre}</h2>
+                <h2 className="profile-user-name" style={{ marginBottom: 0 }}>
+                  {perfil.nombre}
+                </h2>
               </div>
 
               <div className="profile-form-box">
-                <h3 className="profile-section-title">{perfil.nombre_oficio || 'OFICIO'}</h3>
+                <h3 className="profile-section-title">
+                  {perfil.nombre_oficio || "OFICIO"}
+                </h3>
 
-                {mensaje && <p style={{color:'#f90', marginBottom:'8px'}}>{mensaje}</p>}
+                {mensaje && (
+                  <p style={{ color: "#f90", marginBottom: "8px" }}>
+                    {mensaje}
+                  </p>
+                )}
 
                 {!editando ? (
                   <>
@@ -139,32 +211,100 @@ export default function PerfilUsuario() {
                       <label>CURP</label>
                       <p>{perfil.curp}</p>
                     </div>
-                    <button type="button" className="btn-hacer-cambios"
-                      onClick={() => { setEditando(true); setMensaje(''); }}>
+                    <button
+                      type="button"
+                      className="btn-hacer-cambios"
+                      onClick={() => {
+                        setEditando(true);
+                        setMensaje("");
+                      }}
+                    >
                       Hacer Cambios
                     </button>
                   </>
                 ) : (
                   <form onSubmit={guardarCambios}>
-                    <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "12px",
+                      }}
+                    >
                       <div className="profile-field">
                         <label>Nombre</label>
-                        <input type="text" value={nombre} onChange={e => setNombre(e.target.value)}
-                          pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{5,25}$"
-                          style={{display:'block', width:'100%', marginTop:'4px', padding:'4px 0', background:'transparent', border:'none', borderBottom:'2px solid #1b4b73', outline:'none', fontFamily:'Inter, sans-serif', fontWeight:'600', fontSize:'0.95rem', color:'#111'}} />
+                        <input
+                          type="text"
+                          value={nombre}
+                          onChange={(e) => setNombre(e.target.value)}
+                          required
+                          maxLength={25}
+                          title="Solo letras y espacios, entre 5 y 25 caracteres"
+                          pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]{5,25}$"
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            marginTop: "4px",
+                            padding: "4px 0",
+                            background: "transparent",
+                            border: "none",
+                            borderBottom: "2px solid #1b4b73",
+                            outline: "none",
+                            fontFamily: "Inter, sans-serif",
+                            fontWeight: "600",
+                            fontSize: "0.95rem",
+                            color: "#111",
+                          }}
+                        />
                       </div>
                       <div className="profile-field">
                         <label>Teléfono</label>
-                        <input type="text" value={telefono} onChange={e => setTelefono(e.target.value)}
+                        <input
+                          type="text"
+                          value={telefono}
+                          onChange={(e) => setTelefono(e.target.value)}
+                          required
+                          maxLength={10}
+                          inputMode="numeric"
+                          title="10 dígitos que empiecen con 55"
                           pattern="^55\d{8}$"
-                          style={{display:'block', width:'100%', marginTop:'4px', padding:'4px 0', background:'transparent', border:'none', borderBottom:'2px solid #1b4b73', outline:'none', fontFamily:'Inter, sans-serif', fontWeight:'600', fontSize:'0.95rem', color:'#111'}} />
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            marginTop: "4px",
+                            padding: "4px 0",
+                            background: "transparent",
+                            border: "none",
+                            borderBottom: "2px solid #1b4b73",
+                            outline: "none",
+                            fontFamily: "Inter, sans-serif",
+                            fontWeight: "600",
+                            fontSize: "0.95rem",
+                            color: "#111",
+                          }}
+                        />
                       </div>
                     </div>
-                    <div style={{display:'flex', gap:'10px', marginTop:'20px', justifyContent:'center'}}>
-                      <button type="submit" className="btn-hacer-cambios">Guardar</button>
-                      <button type="button" className="btn-hacer-cambios"
-                        style={{background:'#666'}}
-                        onClick={() => { setEditando(false); setMensaje(''); }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        marginTop: "20px",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <button type="submit" className="btn-hacer-cambios">
+                        Guardar
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-hacer-cambios"
+                        style={{ background: "#666" }}
+                        onClick={() => {
+                          setEditando(false);
+                          setMensaje("");
+                        }}
+                      >
                         Cancelar
                       </button>
                     </div>

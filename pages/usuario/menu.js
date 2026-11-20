@@ -1,21 +1,29 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { leerToken, borrarToken } from '../../utilidades/peticiones';
-import Link from 'next/link';
-import IconoOficio from '../../componentes/iconoOficio';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
+import { leerToken, borrarToken } from "../../utilidades/peticiones";
+import { obtenerAvance } from "../../utilidades/avance_peticiones";
+import Link from "next/link";
+import IconoOficio from "../../componentes/iconoOficio";
 
 export default function MenuUsuario() {
   const router = useRouter();
+  const [vencida, setVencida] = useState(false);
 
   useEffect(() => {
     if (!leerToken()) {
-      router.push('/login');
+      router.push("/login");
+      return;
     }
+
+    // Si falla, el menú se muestra igual, solo sin la tarjeta de renovar
+    obtenerAvance()
+      .then((avance) => setVencida(avance.estatus === "Vencida"))
+      .catch(() => {});
   }, []);
 
   function cerrarSesion() {
     borrarToken();
-    router.push('/login');
+    router.push("/login");
   }
 
   return (
@@ -37,8 +45,17 @@ export default function MenuUsuario() {
           <Link href="/usuario/perfil" className="nav-item" title="Perfil">
             <img src="/img/Perfil.png" alt="Perfil" className="nav-icon" />
           </Link>
-          <button onClick={cerrarSesion} className="nav-item" title="Salir"
-            style={{background:'none', border:'none', cursor:'pointer', padding:0}}>
+          <button
+            onClick={cerrarSesion}
+            className="nav-item"
+            title="Salir"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
             <img src="/img/Salir.png" alt="Salir" className="nav-icon" />
           </button>
         </div>
@@ -48,11 +65,22 @@ export default function MenuUsuario() {
       <div className="main-area">
         <header className="top-bar">
           <div className="logo-container">
-            <img src="/img/LogoBlanco.png" alt="AcreditaTech" className="logo-img" />
+            <img
+              src="/img/LogoBlanco.png"
+              alt="AcreditaTech"
+              className="logo-img"
+            />
             <span className="logo-text">AcreditaTech</span>
           </div>
 
-          <div style={{ marginLeft: 'auto', paddingRight: '35px', display: 'flex', alignItems: 'center' }}>
+          <div
+            style={{
+              marginLeft: "auto",
+              paddingRight: "35px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
             <IconoOficio alto={48} />
           </div>
         </header>
@@ -63,7 +91,9 @@ export default function MenuUsuario() {
               <h3>Salud Ocupacional</h3>
               <p>Ingresa al test y averigua si eres una persona apta</p>
             </div>
-            <a href="/usuario/test-salud" className="btn-empezar">Empezar</a>
+            <a href="/usuario/test-salud" className="btn-empezar">
+              Empezar
+            </a>
           </div>
 
           <div className="test-card">
@@ -71,16 +101,35 @@ export default function MenuUsuario() {
               <h3>Test Técnico</h3>
               <p>Ingresa al test y averigua si eres una persona apta</p>
             </div>
-            <a href="/usuario/test-tecnico" className="btn-empezar">Empezar</a>
+            <a href="/usuario/test-tecnico" className="btn-empezar">
+              Empezar
+            </a>
           </div>
 
           <div className="test-card">
             <div className="card-info">
-              <h3>Exámen final</h3>
-              <p>Ingresa al test y averigua si eres una persona apta</p>
+              <h3>Pre-Constancia</h3>
+              <p>Consulta tu estado y descarga tu Pre-Constancia en PDF</p>
             </div>
-            <a href="#" className="btn-empezar">Empezar</a>
+            <a href="/usuario/constancia" className="btn-empezar">
+              Ver
+            </a>
           </div>
+
+          {vencida && (
+            <div className="test-card">
+              <div className="card-info">
+                <h3>Renovar vigencia</h3>
+                <p>
+                  Tu Pre-Constancia venció. Vuelve a presentar tus evaluaciones
+                  para renovarla
+                </p>
+              </div>
+              <a href="/usuario/progreso" className="btn-empezar">
+                Renovar
+              </a>
+            </div>
+          )}
         </main>
       </div>
     </div>
