@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { leerToken } from '../utilidades/peticiones';
+import { leerToken, obtenerPerfil } from '../utilidades/peticiones';
 import {
   iniciarTest,
   obtenerPregunta,
@@ -26,6 +26,19 @@ const TEXTOS = {
   },
 };
 
+function fondoDeOficio(nombreOficio) {
+  const o = (nombreOficio || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  if (o.includes('electr'))  return '/img/fondo-electricista.png';
+  if (o.includes('plom'))    return '/img/fondo-plomeria.png';
+  if (o.includes('carpint')) return '/img/fondo-carpintero.png';
+  if (o.includes('alban'))   return '/img/fondo-albanil.png';
+  return null;
+}
+
 const estiloBoton = { border: 'none', cursor: 'pointer' };
 
 export default function Cuestionario({ tipo }) {
@@ -39,12 +52,23 @@ export default function Cuestionario({ tipo }) {
   const [estado, setEstado] = useState(null);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [fondo, setFondo] = useState(null);
 
   useEffect(() => {
     if (!leerToken()) {
       router.push('/login');
     }
   }, [router]);
+
+  useEffect(() => {
+    if (tipo !== 1) return;
+    obtenerPerfil()
+      .then(data => {
+        const info = data.perfil || data;
+        setFondo(fondoDeOficio(info.nombre_oficio));
+      })
+      .catch(() => {});
+  }, [tipo]);
 
   function manejarError(err) {
     if (err.response?.status === 401) {
@@ -136,9 +160,13 @@ export default function Cuestionario({ tipo }) {
       </main>
     );
   }
+
   if (fase === 'pregunta' && datos) {
     return (
-      <main className="quiz-content-area">
+      <main
+        className={'quiz-content-area' + (tipo === 1 ? ' quiz-tecnico' : '')}
+        style={tipo === 1 && fondo ? { backgroundImage: `url(${fondo})` } : undefined}
+      >
         <div className="quiz-card-socrative">
           <div className="quiz-counter">
             Pregunta {datos.caso} de {datos.total_casos}
