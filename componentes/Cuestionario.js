@@ -11,7 +11,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { leerToken } from '../utilidades/peticiones';
+import { leerToken, obtenerPerfil } from '../utilidades/peticiones';
 import {
   iniciarTest,
   obtenerPregunta,
@@ -55,6 +55,7 @@ export default function Cuestionario({ tipo }) {
   const [estado, setEstado] = useState(null);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
+  const [fondo, setFondo] = useState(null);
 
   // Si no hay sesión iniciada, mandar al login
   useEffect(() => {
@@ -189,7 +190,10 @@ export default function Cuestionario({ tipo }) {
   // ── Fase 2: pregunta ────────────────────────────────────────────────────
   if (fase === 'pregunta' && datos) {
     return (
-      <main className="quiz-content-area">
+      <main
+        className={'quiz-content-area' + (tipo === 1 ? ' quiz-tecnico' : '')}
+        style={tipo === 1 && fondo ? { backgroundImage: `url(${fondo})` } : undefined}
+      >
         <div className="quiz-card-socrative">
           <div className="quiz-counter">
             Pregunta {datos.caso} de {datos.total_casos}

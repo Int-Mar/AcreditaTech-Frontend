@@ -1,42 +1,80 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import Head from 'next/head';
-import { registrar, obtenerCatalogos } from '../utilidades/peticiones';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
+import Head from "next/head";
+import { registrar, obtenerCatalogos } from "../utilidades/peticiones";
+import { validarRegistro } from "../utilidades/validaciones";
+
+function MensajeCampo({ texto }) {
+  return (
+    <span
+      style={{
+        color: "red",
+        fontSize: "0.8rem",
+        display: "block",
+        marginTop: "4px",
+      }}
+    >
+      {texto}
+    </span>
+  );
+}
 
 export default function Registro() {
   const router = useRouter();
   const [mostrarModal, setMostrarModal] = useState(true);
-  const [catalogos, setCatalogos]       = useState({ alcaldias: [], oficios: [] });
-  const [error, setError]               = useState('');
-  const [cargando, setCargando]         = useState(false);
+  const [catalogos, setCatalogos] = useState({ alcaldias: [], oficios: [] });
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+  const [errores, setErrores] = useState({});
   const [form, setForm] = useState({
-    nombre: '', telefono: '', correo: '',
-    contrasena: '', curp: '',
-    id_alcaldia: '', id_oficio: '',
-    acepta_terminos: false
+    nombre: "",
+    telefono: "",
+    correo: "",
+    contrasena: "",
+    curp: "",
+    id_alcaldia: "",
+    id_oficio: "",
+    acepta_terminos: false,
   });
 
   // Cargar alcaldías y oficios al abrir la página
   useEffect(() => {
     obtenerCatalogos()
-      .then(datos => setCatalogos(datos))
+      .then((datos) => setCatalogos(datos))
       .catch(() => {});
   }, []);
 
   function manejarCambio(e) {
     const { name, value, type, checked } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+    setErrores((prev) => ({ ...prev, [name]: undefined }));
   }
 
   async function manejarEnvio(e) {
     e.preventDefault();
-    setError('');
+    setError("");
+
+    const erroresForm = validarRegistro(form);
+    setErrores(erroresForm);
+    if (Object.keys(erroresForm).length > 0) {
+      return;
+    }
+
     setCargando(true);
     try {
-      await registrar({ ...form, acepta_terminos: true });
-      router.push('/login');
+      await registrar({
+        ...form,
+        nombre: form.nombre.trim(),
+        correo: form.correo.trim().toLowerCase(),
+        curp: form.curp.trim().toUpperCase(),
+        acepta_terminos: true,
+      });
+      router.push("/login");
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al registrarse');
+      setError(err.response?.data?.mensaje || "Error al registrarse");
     } finally {
       setCargando(false);
     }
@@ -47,8 +85,15 @@ export default function Registro() {
       <Head>
         <title>AcreditaTech - Registro</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-        <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inria+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="true"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Anton&family=Inria+Serif:wght@400;700&family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
       {/* Modal de Términos */}
@@ -62,11 +107,11 @@ export default function Registro() {
             <div className="terms-box">
               <h3>Términos y Condiciones</h3>
               <p>
-                Al registrarte en AcreditaTech aceptas la evaluación autónoma
-                de tus competencias técnicas y de salud ocupacional.
-                Tu información será usada únicamente para fines de certificación
-                dentro del programa de trabajadores independientes de las
-                alcaldías Azcapotzalco y Miguel Hidalgo.
+                Al registrarte en AcreditaTech aceptas la evaluación autónoma de
+                tus competencias técnicas y de salud ocupacional. Tu información
+                será usada únicamente para fines de certificación dentro del
+                programa de trabajadores independientes de las alcaldías
+                Azcapotzalco y Miguel Hidalgo.
               </p>
             </div>
             <button
@@ -85,16 +130,29 @@ export default function Registro() {
         <div className="auth-left">
           <div className="auth-overlay"></div>
           <div className="auth-brand">
-            <img src="/img/LogoBlanco.png" alt="AcreditaTech" className="brand-logo" />
+            <img
+              src="/img/LogoBlanco.png"
+              alt="AcreditaTech"
+              className="brand-logo"
+            />
             <h1 className="brand-name">AcreditaTech</h1>
           </div>
         </div>
 
         <div className="auth-right">
-
-          <div style={{marginBottom: '8px'}}>
-            <a href="/" style={{display:'inline-flex', alignItems:'center', gap:'6px',
-              color:'#1b4b73', textDecoration:'none', fontSize:'0.9rem', fontWeight:'500'}}>
+          <div style={{ marginBottom: "8px" }}>
+            <a
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                color: "#1b4b73",
+                textDecoration: "none",
+                fontSize: "0.9rem",
+                fontWeight: "500",
+              }}
+            >
               ← Regresar
             </a>
           </div>
@@ -107,79 +165,166 @@ export default function Registro() {
             <div className="form-title-badge">Registrarse</div>
           </div>
 
-          <form className="auth-form" onSubmit={manejarEnvio}>
+          <form className="auth-form" onSubmit={manejarEnvio} noValidate>
             <div className="form-group">
               <label>Nombre Completo</label>
-              <input type="text" name="nombre" placeholder="ejemplo: Juan Pérez González"
-                value={form.nombre} onChange={manejarCambio} required
-                pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]{5,25}$"
-                title="Solo letras, entre 5 y 25 caracteres" />
+              <input
+                type="text"
+                name="nombre"
+                placeholder="ejemplo: Juan Pérez González"
+                value={form.nombre}
+                onChange={manejarCambio}
+                required
+                maxLength={25}
+                autoComplete="name"
+                title="Solo letras y espacios, entre 5 y 25 caracteres"
+              />
+              {errores.nombre && <MensajeCampo texto={errores.nombre} />}
             </div>
 
             <div className="form-group">
               <label>Teléfono de Contacto</label>
-              <input type="tel" name="telefono" placeholder="ejemplo: 5548461405"
-                value={form.telefono} onChange={manejarCambio} required
-                pattern="^55\d{8}$"
-                title="10 dígitos comenzando con 55" />
+              <input
+                type="tel"
+                name="telefono"
+                placeholder="ejemplo: 5548461405"
+                value={form.telefono}
+                onChange={manejarCambio}
+                required
+                maxLength={10}
+                inputMode="numeric"
+                autoComplete="tel-national"
+                title="10 dígitos comenzando con 55"
+              />
+              {errores.telefono && <MensajeCampo texto={errores.telefono} />}
             </div>
 
             <div className="form-group">
               <label>Correo electrónico</label>
-              <input type="email" name="correo" placeholder="ejemplo: juanpg@gmail.com"
-                value={form.correo} onChange={manejarCambio} required />
+              <input
+                type="email"
+                name="correo"
+                placeholder="ejemplo: juanpg@gmail.com"
+                value={form.correo}
+                onChange={manejarCambio}
+                required
+                maxLength={50}
+                autoComplete="email"
+              />
+              {errores.correo && <MensajeCampo texto={errores.correo} />}
             </div>
 
             <div className="form-group">
               <label>Contraseña</label>
-              <input type="password" name="contrasena" placeholder="entre 8 y 20 caracteres"
-                value={form.contrasena} onChange={manejarCambio} required />
+              <input
+                type="password"
+                name="contrasena"
+                placeholder="8-20: mayúscula, minúscula, número y símbolo"
+                value={form.contrasena}
+                onChange={manejarCambio}
+                required
+                maxLength={20}
+                autoComplete="new-password"
+              />
+              {errores.contrasena && (
+                <MensajeCampo texto={errores.contrasena} />
+              )}
             </div>
 
             <div className="form-group">
               <label>CURP</label>
-              <input type="text" name="curp" placeholder="18 caracteres"
-                value={form.curp} onChange={manejarCambio} required maxLength={18}
-                pattern="^.{18}$"
-                title="Debe tener exactamente 18 caracteres" />
+              <input
+                type="text"
+                name="curp"
+                placeholder="18 caracteres"
+                value={form.curp}
+                onChange={manejarCambio}
+                required
+                maxLength={18}
+                autoComplete="off"
+                style={{ textTransform: "uppercase" }}
+                title="Letras y números con el formato oficial de la CURP"
+              />
+              {errores.curp && <MensajeCampo texto={errores.curp} />}
             </div>
 
             <div className="form-group">
               <label>Alcaldía de Trabajo</label>
-              <select name="id_alcaldia" value={form.id_alcaldia} onChange={manejarCambio} required>
-                <option value="" disabled>Selecciona tu alcaldía</option>
-                {catalogos.alcaldias.map(a => (
-                  <option key={a.id_alcaldia} value={a.id_alcaldia}>{a.nombre_alcaldia}</option>
+              <select
+                name="id_alcaldia"
+                value={form.id_alcaldia}
+                onChange={manejarCambio}
+                required
+              >
+                <option value="" disabled>
+                  Selecciona tu alcaldía
+                </option>
+                {catalogos.alcaldias.map((a) => (
+                  <option key={a.id_alcaldia} value={a.id_alcaldia}>
+                    {a.nombre_alcaldia}
+                  </option>
                 ))}
               </select>
+              {errores.id_alcaldia && (
+                <MensajeCampo texto={errores.id_alcaldia} />
+              )}
             </div>
 
             <div className="form-group">
               <label>Elige tu Oficio</label>
-              <select name="id_oficio" value={form.id_oficio} onChange={manejarCambio} required>
-                <option value="" disabled>Selecciona tu oficio</option>
-                {catalogos.oficios.map(o => (
-                  <option key={o.id_oficio} value={o.id_oficio}>{o.nombre_oficio}</option>
+              <select
+                name="id_oficio"
+                value={form.id_oficio}
+                onChange={manejarCambio}
+                required
+              >
+                <option value="" disabled>
+                  Selecciona tu oficio
+                </option>
+                {catalogos.oficios.map((o) => (
+                  <option key={o.id_oficio} value={o.id_oficio}>
+                    {o.nombre_oficio}
+                  </option>
                 ))}
               </select>
+              {errores.id_oficio && <MensajeCampo texto={errores.id_oficio} />}
             </div>
 
             <div className="form-group terms-group">
-              <input type="checkbox" id="acceptTerms" name="acepta_terminos"
-                checked={form.acepta_terminos} onChange={manejarCambio} required />
+              <input
+                type="checkbox"
+                id="acceptTerms"
+                name="acepta_terminos"
+                checked={form.acepta_terminos}
+                onChange={manejarCambio}
+                required
+              />
               <label htmlFor="acceptTerms" className="terms-label">
                 Acepto aviso de Términos y Condiciones
               </label>
             </div>
+            {errores.acepta_terminos && (
+              <MensajeCampo texto={errores.acepta_terminos} />
+            )}
 
             {error && (
-              <p style={{ color: 'red', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+              <p
+                style={{
+                  color: "red",
+                  fontSize: "0.9rem",
+                  marginBottom: "0.5rem",
+                }}
+              >
                 {error}
               </p>
             )}
 
-            <button type="submit" className="btn btn-submit" disabled={cargando}>
-              {cargando ? 'Registrando...' : 'Registrarme'}
+            <button
+              type="submit"
+              className="btn btn-submit"
+              disabled={cargando}
+            >
+              {cargando ? "Registrando..." : "Registrarme"}
             </button>
           </form>
         </div>
