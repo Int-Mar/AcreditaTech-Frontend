@@ -1,16 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { leerToken, borrarToken } from "../../utilidades/peticiones";
+import { obtenerAvance } from "../../utilidades/avance_peticiones";
 import Link from "next/link";
 import IconoOficio from "../../componentes/iconoOficio";
 
 export default function MenuUsuario() {
   const router = useRouter();
+  const [vencida, setVencida] = useState(false);
 
   useEffect(() => {
     if (!leerToken()) {
       router.push("/login");
+      return;
     }
+
+    // Si falla, el menú se muestra igual, solo sin la tarjeta de renovar
+    obtenerAvance()
+      .then((avance) => setVencida(avance.estatus === "Vencida"))
+      .catch(() => {});
   }, []);
 
   function cerrarSesion() {
@@ -107,6 +115,21 @@ export default function MenuUsuario() {
               Ver
             </a>
           </div>
+
+          {vencida && (
+            <div className="test-card">
+              <div className="card-info">
+                <h3>Renovar vigencia</h3>
+                <p>
+                  Tu Pre-Constancia venció. Vuelve a presentar tus evaluaciones
+                  para renovarla
+                </p>
+              </div>
+              <a href="/usuario/progreso" className="btn-empezar">
+                Renovar
+              </a>
+            </div>
+          )}
         </main>
       </div>
     </div>
