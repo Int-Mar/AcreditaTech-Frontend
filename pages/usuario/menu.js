@@ -15,7 +15,6 @@ export default function MenuUsuario() {
       return;
     }
 
-    // Si falla, el menú se muestra igual, solo sin la tarjeta de renovar
     obtenerAvance()
       .then((avance) => setVencida(avance.estatus === "Vencida"))
       .catch(() => {});
@@ -28,7 +27,7 @@ export default function MenuUsuario() {
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
+      {}
       <aside className="sidebar">
         <nav className="sidebar-nav">
           <Link href="/usuario/menu" className="nav-item" title="Inicio">
@@ -61,7 +60,7 @@ export default function MenuUsuario() {
         </div>
       </aside>
 
-      {/* Área principal */}
+      {}
       <div className="main-area">
         <header className="top-bar">
           <div className="logo-container">
@@ -125,7 +124,7 @@ export default function MenuUsuario() {
                   para renovarla
                 </p>
               </div>
-              <a href="/usuario/progreso" className="btn-empezar">
+              <a href="/usuario/constancia" className="btn-empezar">
                 Renovar
               </a>
             </div>
