@@ -5,10 +5,10 @@ import { leerToken, borrarToken } from "../../utilidades/peticiones";
 import {
   obtenerEstadoConstancia,
   descargarConstanciaPdf,
+  renovarConstancia,
 } from "../../utilidades/constancia_peticiones";
 import estilos from "../../estilos/constancia.module.css";
 
-// Convierte la fecha que manda el Backend a texto: 19/11/2026
 function formatearFecha(fecha) {
   return new Date(fecha).toLocaleDateString("es-MX", {
     day: "2-digit",
@@ -18,7 +18,6 @@ function formatearFecha(fecha) {
   });
 }
 
-// Una cajita con etiqueta pequeña y valor
 function Dato({ etiqueta, valor }) {
   return (
     <div className={estilos.dato}>
@@ -35,9 +34,10 @@ export default function Constancia() {
   const [error, setError] = useState("");
   const [descargando, setDescargando] = useState(false);
   const [errorDescarga, setErrorDescarga] = useState("");
+  const [renovando, setRenovando] = useState(false);
+  const [errorRenovar, setErrorRenovar] = useState("");
 
   useEffect(() => {
-    // Sin sesión no se puede ver la Pre-Constancia
     if (!leerToken()) {
       router.push("/login");
       return;
@@ -58,7 +58,6 @@ export default function Constancia() {
       .finally(() => setCargando(false));
   }, []);
 
-  // Descarga el PDF y vuelve a pedir el estado (la primera vez se crea el folio)
   async function descargar() {
     setDescargando(true);
     setErrorDescarga("");
@@ -66,7 +65,6 @@ export default function Constancia() {
       await descargarConstanciaPdf();
       setConstancia(await obtenerEstadoConstancia());
     } catch (err) {
-      // Si el Backend mandó un mensaje (por ejemplo, 403) se muestra tal cual
       const mensaje =
         err.response && err.response.data && err.response.data.mensaje;
       setErrorDescarga(
@@ -77,8 +75,26 @@ export default function Constancia() {
     }
   }
 
-  // El botón se habilita si ya tiene una constancia vigente
-  // o si todavía no tiene pero ya aprobó las dos evaluaciones.
+  async function renovar() {
+    const confirmar = window.confirm(
+      "Se reiniciarán tus evaluaciones y tendrás que presentarlas de nuevo. ¿Quieres continuar?",
+    );
+    if (!confirmar) return;
+    setRenovando(true);
+    setErrorRenovar("");
+    try {
+      await renovarConstancia();
+      router.push("/usuario/progreso");
+    } catch (err) {
+      const mensaje =
+        err.response && err.response.data && err.response.data.mensaje;
+      setErrorRenovar(
+        mensaje || "No se pudo renovar tu Pre-Constancia. Intenta de nuevo.",
+      );
+      setRenovando(false);
+    }
+  }
+
   const vigente =
     constancia &&
     constancia.tiene_constancia &&
@@ -158,6 +174,22 @@ export default function Constancia() {
               <p className={`${estilos.aviso} ${estilos.avisoError}`}>
                 {errorDescarga}
               </p>
+            )}
+
+            {errorRenovar && (
+              <p className={`${estilos.aviso} ${estilos.avisoError}`}>
+                {errorRenovar}
+              </p>
+            )}
+
+            {constancia.tiene_constancia && !vigente && (
+              <button
+                className={estilos.boton}
+                disabled={renovando}
+                onClick={renovar}
+              >
+                {renovando ? "Renovando..." : "Renovar Pre-Constancia"}
+              </button>
             )}
 
             <button
