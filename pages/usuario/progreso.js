@@ -6,14 +6,12 @@ import { leerToken, borrarToken } from "../../utilidades/peticiones";
 import { obtenerAvance } from "../../utilidades/avance_peticiones";
 import estilos from "../../estilos/progreso.module.css";
 
-// Devuelve la clase de color según el estatus
 function claseEstatus(estatus) {
   if (estatus === "Preparación Completada") return estilos.estatusCompleto;
   if (estatus === "Vencida") return estilos.estatusVencida;
   return "";
 }
 
-// Una línea del checklist: ✓ si está aprobada, vacía si falta
 function ItemChecklist({ texto, aprobada }) {
   return (
     <li className={estilos.checklistItem}>
@@ -27,7 +25,6 @@ function ItemChecklist({ texto, aprobada }) {
   );
 }
 
-// Tarjeta de una evaluación (usa las clases de globals.css)
 function TarjetaEvaluacion({
   titulo,
   descripcion,
@@ -53,7 +50,6 @@ function TarjetaEvaluacion({
   );
 }
 
-// Máximo de intentos por evaluación (el mismo valor que usa el Backend)
 const MAX_INTENTOS = 5;
 
 export default function Progreso() {
@@ -63,7 +59,6 @@ export default function Progreso() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    // Sin sesión no se puede ver el avance
     if (!leerToken()) {
       router.push("/login");
       return;
@@ -72,7 +67,6 @@ export default function Progreso() {
     obtenerAvance()
       .then(setAvance)
       .catch((err) => {
-        // Token vencido o inválido: se borra y se manda a iniciar sesión
         if (err.response && err.response.status === 401) {
           borrarToken();
           router.push("/login");

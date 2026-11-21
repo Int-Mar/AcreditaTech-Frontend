@@ -1,9 +1,6 @@
 import estilos from "../estilos/progreso.module.css";
 
-// Barra de progreso de 0% a 100%.
-// Recibe el porcentaje (número) y lo dibuja con su texto debajo.
 export default function BarraAvance({ porcentaje }) {
-  // Se asegura de que el valor esté entre 0 y 100
   const valor = Math.max(0, Math.min(100, Number(porcentaje) || 0));
 
   return (

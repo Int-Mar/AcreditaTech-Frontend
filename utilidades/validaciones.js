@@ -37,7 +37,6 @@ export function validarCurp(valor) {
     : "CURP: revisa que tenga el formato correcto (18 letras y números)";
 }
 
-// Regresa { campo: 'mensaje' } solo con los campos que fallaron
 export function validarRegistro(form) {
   const errores = {};
   const revisiones = {
