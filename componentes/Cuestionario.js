@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { leerToken, obtenerPerfil } from '../utilidades/peticiones';
+import { leerToken } from '../utilidades/peticiones';
 import {
   iniciarTest,
   obtenerPregunta,
@@ -26,49 +26,28 @@ const TEXTOS = {
   },
 };
 
-function fondoDeOficio(nombreOficio) {
-  const o = (nombreOficio || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
-
-  if (o.includes('electr'))  return '/img/fondo-electricista.png';
-  if (o.includes('plom'))    return '/img/fondo-plomeria.png';
-  if (o.includes('carpint')) return '/img/fondo-carpintero.png';
-  if (o.includes('alban'))   return '/img/fondo-albanil.png';
-  return null;
-}
-
 const estiloBoton = { border: 'none', cursor: 'pointer' };
+
+const esNinguno = (opcion) => opcion.texto.startsWith('Ninguno de estos');
 
 export default function Cuestionario({ tipo }) {
   const router = useRouter();
   const textos = TEXTOS[tipo] || TEXTOS[1];
+  const esSalud = tipo === 2;
 
-  const [fase, setFase] = useState('inicio');
+  const [fase, setFase] = useState('inicio'); 
   const [datos, setDatos] = useState(null);
-  const [opcionElegida, setOpcionElegida] = useState(null);
+  const [seleccion, setSeleccion] = useState([]);
   const [resultado, setResultado] = useState(null);
   const [estado, setEstado] = useState(null);
   const [error, setError] = useState('');
   const [cargando, setCargando] = useState(false);
-  const [fondo, setFondo] = useState(null);
 
   useEffect(() => {
     if (!leerToken()) {
       router.push('/login');
     }
   }, [router]);
-
-  useEffect(() => {
-    if (tipo !== 1) return;
-    obtenerPerfil()
-      .then(data => {
-        const info = data.perfil || data;
-        setFondo(fondoDeOficio(info.nombre_oficio));
-      })
-      .catch(() => {});
-  }, [tipo]);
 
   function manejarError(err) {
     if (err.response?.status === 401) {
@@ -90,7 +69,7 @@ export default function Cuestionario({ tipo }) {
       await iniciarTest(tipo);
       const pregunta = await obtenerPregunta(tipo);
       setDatos(pregunta);
-      setOpcionElegida(null);
+      setSeleccion([]);
       setFase('pregunta');
     } catch (err) {
       manejarError(err);
@@ -99,15 +78,40 @@ export default function Cuestionario({ tipo }) {
     }
   }
 
+  const esCasillas = datos?.pregunta?.tipo_pregunta === 'checkbox';
+
+  function elegir(opcion) {
+    if (!esCasillas) {
+      setSeleccion([opcion.id_opcion]);
+      return;
+    }
+
+    if (esNinguno(opcion)) {
+      setSeleccion([opcion.id_opcion]);
+      return;
+    }
+
+    const ninguno = datos.pregunta.opciones.find(esNinguno);
+    const sinNinguno = seleccion.filter(
+      (id) => !ninguno || id !== ninguno.id_opcion
+    );
+
+    if (sinNinguno.includes(opcion.id_opcion)) {
+      setSeleccion(sinNinguno.filter((id) => id !== opcion.id_opcion));
+    } else {
+      setSeleccion([...sinNinguno, opcion.id_opcion]);
+    }
+  }
+
   async function enviar() {
-    if (!opcionElegida) return;
+    if (seleccion.length === 0) return;
     setError('');
     setCargando(true);
     try {
       const respuesta = await responderPregunta(
         tipo,
         datos.pregunta.id_pregunta,
-        opcionElegida
+        esCasillas ? seleccion : seleccion[0]
       );
 
       if (respuesta.finalizado) {
@@ -121,7 +125,7 @@ export default function Cuestionario({ tipo }) {
       } else {
         const siguiente = await obtenerPregunta(tipo);
         setDatos(siguiente);
-        setOpcionElegida(null);
+        setSeleccion([]);
       }
     } catch (err) {
       manejarError(err);
@@ -163,16 +167,19 @@ export default function Cuestionario({ tipo }) {
 
   if (fase === 'pregunta' && datos) {
     return (
-      <main
-        className={'quiz-content-area' + (tipo === 1 ? ' quiz-tecnico' : '')}
-        style={tipo === 1 && fondo ? { backgroundImage: `url(${fondo})` } : undefined}
-      >
+      <main className="quiz-content-area quiz-tecnico">
         <div className="quiz-card-socrative">
           <div className="quiz-counter">
             Pregunta {datos.caso} de {datos.total_casos}
           </div>
 
           <div className="quiz-question-title">{datos.pregunta.texto}</div>
+
+          {esCasillas && (
+            <p style={{ fontSize: '0.9rem', margin: '0 0 0.5rem' }}>
+              Puedes marcar varias opciones.
+            </p>
+          )}
 
           <div className="quiz-options-container">
             {datos.pregunta.opciones.map((opcion) => (
@@ -181,9 +188,9 @@ export default function Cuestionario({ tipo }) {
                 type="button"
                 className={
                   'quiz-option-btn' +
-                  (opcionElegida === opcion.id_opcion ? ' selected' : '')
+                  (seleccion.includes(opcion.id_opcion) ? ' selected' : '')
                 }
-                onClick={() => setOpcionElegida(opcion.id_opcion)}
+                onClick={() => elegir(opcion)}
               >
                 {opcion.texto}
               </button>
@@ -198,10 +205,10 @@ export default function Cuestionario({ tipo }) {
               className="btn-subir-respuesta"
               style={{
                 cursor: 'pointer',
-                opacity: !opcionElegida || cargando ? 0.5 : 1,
+                opacity: seleccion.length === 0 || cargando ? 0.5 : 1,
               }}
               onClick={enviar}
-              disabled={!opcionElegida || cargando}
+              disabled={seleccion.length === 0 || cargando}
             >
               {cargando ? 'Enviando...' : 'Subir respuesta'}
             </button>
@@ -221,10 +228,18 @@ export default function Cuestionario({ tipo }) {
           <p className="result-subtitle">Resultado obtenido</p>
 
           <div className={'result-score-box ' + (aprobado ? 'success' : 'danger')}>
-            <span className="result-percentage">{resultado.calificacion}%</span>
-            <span className="result-aciertos">
-              Puntaje: {resultado.calificacion} de 100
-            </span>
+            {esSalud ? (
+              <span className="result-percentage" style={{ fontSize: '2rem' }}>
+                {aprobado ? 'Apto' : 'Necesita reforzamiento'}
+              </span>
+            ) : (
+              <>
+                <span className="result-percentage">{resultado.calificacion}%</span>
+                <span className="result-aciertos">
+                  Puntaje: {resultado.calificacion} de 100
+                </span>
+              </>
+            )}
           </div>
 
           <div className="result-message-block">
@@ -232,6 +247,8 @@ export default function Cuestionario({ tipo }) {
             <p className="result-status-text">
               {aprobado
                 ? '¡Felicidades, has conseguido un buen puntaje y eres apto!'
+                : esSalud
+                ? 'Necesitas reforzar algunas áreas. Revisa tu Ficha Preventiva y las guías. Puedes volver a intentarlo.'
                 : 'Todavía no alcanzas el puntaje necesario. Puedes volver a intentarlo.'}
             </p>
 
@@ -247,6 +264,11 @@ export default function Cuestionario({ tipo }) {
           </div>
 
           <div className="result-action-container">
+            {esSalud && (
+              <Link href="/usuario/ficha-salud" className="btn-volver-panel">
+                Ver mi Ficha Preventiva
+              </Link>
+            )}
             <Link href="/usuario/menu" className="btn-volver-panel">
               Volver a mi panel
             </Link>
