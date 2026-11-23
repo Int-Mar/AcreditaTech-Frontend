@@ -2,14 +2,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   leerToken,
-  borrarToken,
   obtenerPerfil,
   editarPerfil,
   subirFoto,
 } from "../../utilidades/peticiones";
-import Link from "next/link";
 import { validarNombre, validarTelefono } from "../../utilidades/validaciones";
 import IconoOficio from "../../componentes/iconoOficio";
+import BarraLateral from "../../componentes/BarraLateral";
 
 export default function PerfilUsuario() {
   const router = useRouter();
@@ -78,50 +77,11 @@ export default function PerfilUsuario() {
     }
   }
 
-  function cerrarSesion() {
-    borrarToken();
-    router.push("/login");
-  }
-
   if (!perfil) return null;
 
   return (
     <div className="dashboard-container">
-      <aside className="sidebar">
-        <nav className="sidebar-nav">
-          <Link href="/usuario/menu" className="nav-item" title="Inicio">
-            <img src="/img/Inicio.png" alt="Inicio" className="nav-icon" />
-          </Link>
-          <Link href="/usuario/progreso" className="nav-item" title="Progreso">
-            <img src="/img/Progreso.png" alt="Progreso" className="nav-icon" />
-          </Link>
-          <Link href="/usuario/guias" className="nav-item" title="Guías">
-            <img src="/img/Guias.png" alt="Guías" className="nav-icon" />
-          </Link>
-        </nav>
-        <div className="sidebar-bottom">
-          <Link
-            href="/usuario/perfil"
-            className="nav-item active"
-            title="Perfil"
-          >
-            <img src="/img/Perfil.png" alt="Perfil" className="nav-icon" />
-          </Link>
-          <button
-            onClick={cerrarSesion}
-            className="nav-item"
-            title="Salir"
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            <img src="/img/Salir.png" alt="Salir" className="nav-icon" />
-          </button>
-        </div>
-      </aside>
+      <BarraLateral />
 
       <div className="main-area">
         <header className="top-bar">

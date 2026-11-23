@@ -43,6 +43,26 @@ const estiloBoton = { border: 'none', cursor: 'pointer' };
 // La opción "Ninguno de estos" borra las demás marcas
 const esNinguno = (opcion) => opcion.texto.startsWith('Ninguno de estos');
 
+// Revuelve las opciones para que la correcta no quede siempre arriba o abajo.
+// Solo cambia el orden en pantalla: se sigue mandando el mismo id_opcion,
+// así que la calificación y la base de datos no cambian.
+// No se revuelven las de escala (Nunca ... Siempre) ni las de casillas,
+// porque su orden tiene sentido ("Ninguno de estos" va al final).
+function revolverOpciones(datosPregunta) {
+  const pregunta = datosPregunta?.pregunta;
+  if (!pregunta || !Array.isArray(pregunta.opciones)) return datosPregunta;
+  if (pregunta.tipo_pregunta === 'likert' || pregunta.tipo_pregunta === 'checkbox') {
+    return datosPregunta;
+  }
+
+  const opciones = [...pregunta.opciones];
+  for (let i = opciones.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opciones[i], opciones[j]] = [opciones[j], opciones[i]];
+  }
+  return { ...datosPregunta, pregunta: { ...pregunta, opciones } };
+}
+
 export default function Cuestionario({ tipo }) {
   const router = useRouter();
   const textos = TEXTOS[tipo] || TEXTOS[1];
@@ -85,7 +105,7 @@ export default function Cuestionario({ tipo }) {
     try {
       await iniciarTest(tipo);
       const pregunta = await obtenerPregunta(tipo);
-      setDatos(pregunta);
+      setDatos(revolverOpciones(pregunta));
       setSeleccion([]);
       setFase('pregunta');
     } catch (err) {
@@ -145,7 +165,7 @@ export default function Cuestionario({ tipo }) {
         setFase('resultado');
       } else {
         const siguiente = await obtenerPregunta(tipo);
-        setDatos(siguiente);
+        setDatos(revolverOpciones(siguiente));
         setSeleccion([]);
       }
     } catch (err) {
