@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { leerToken, borrarToken } from "../../utilidades/peticiones";
+import { leerToken } from "../../utilidades/peticiones";
 import { obtenerAvance } from "../../utilidades/avance_peticiones";
-import Link from "next/link";
 import IconoOficio from "../../componentes/iconoOficio";
+import BarraLateral from "../../componentes/BarraLateral";
 
 export default function MenuUsuario() {
   const router = useRouter();
@@ -20,45 +20,9 @@ export default function MenuUsuario() {
       .catch(() => {});
   }, []);
 
-  function cerrarSesion() {
-    borrarToken();
-    router.push("/login");
-  }
-
   return (
     <div className="dashboard-container">
-      {}
-      <aside className="sidebar">
-        <nav className="sidebar-nav">
-          <Link href="/usuario/menu" className="nav-item" title="Inicio">
-            <img src="/img/Inicio.png" alt="Inicio" className="nav-icon" />
-          </Link>
-          <Link href="/usuario/progreso" className="nav-item" title="Progreso">
-            <img src="/img/Progreso.png" alt="Progreso" className="nav-icon" />
-          </Link>
-          <Link href="/usuario/guias" className="nav-item" title="Guías">
-            <img src="/img/Guias.png" alt="Guías" className="nav-icon" />
-          </Link>
-        </nav>
-        <div className="sidebar-bottom">
-          <Link href="/usuario/perfil" className="nav-item" title="Perfil">
-            <img src="/img/Perfil.png" alt="Perfil" className="nav-icon" />
-          </Link>
-          <button
-            onClick={cerrarSesion}
-            className="nav-item"
-            title="Salir"
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            <img src="/img/Salir.png" alt="Salir" className="nav-icon" />
-          </button>
-        </div>
-      </aside>
+      <BarraLateral />
 
       {}
       <div className="main-area">

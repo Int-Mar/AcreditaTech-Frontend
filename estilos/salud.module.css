@@ -1,41 +1,317 @@
-.contenedor { max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
-.tarjeta { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.titulo { font-size: 1.4rem; margin: 0 0 1rem; }
-.campo { display: flex; flex-direction: column; margin-bottom: 1rem; }
-.campo label { font-weight: 600; margin-bottom: 0.3rem; }
-.campo input, .campo select, .campo textarea { padding: 0.5rem; border: 1px solid #bbb;
-  border-radius: 6px; font-size: 1rem; }
-.casilla { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
-.boton { background: #1d4ed8; color: #fff; border: none; border-radius: 6px;
-  padding: 0.6rem 1.2rem; font-size: 1rem; cursor: pointer; }
-.boton:disabled { opacity: 0.5; cursor: default; }
-.exito { color: #15803d; margin-top: 0.8rem; }
-.error { color: #b91c1c; margin-top: 0.8rem; }
-.contenedor { max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
-.tarjeta { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.titulo { font-size: 1.4rem; margin: 0 0 1rem; }
-.campo { display: flex; flex-direction: column; margin-bottom: 1rem; }
-.campo label { font-weight: 600; margin-bottom: 0.3rem; }
-.campo input, .campo select, .campo textarea { padding: 0.5rem; border: 1px solid #bbb;
-  border-radius: 6px; font-size: 1rem; }
-.casilla { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
-.boton { background: #1d4ed8; color: #fff; border: none; border-radius: 6px;
-  padding: 0.6rem 1.2rem; font-size: 1rem; cursor: pointer; }
-.boton:disabled { opacity: 0.5; cursor: default; }
-.exito { color: #15803d; margin-top: 0.8rem; }
-.error { color: #b91c1c; margin-top: 0.8rem; }
+/* Ficha Preventiva: mismo estilo que Guías y el menú (fondo azul, tarjetas crema) */
 
-.etiqueta { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 999px;
-  font-weight: 700; margin-bottom: 1rem; }
+.contenedor {
+  flex: 1;
+  padding: 48px 56px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.envoltura {
+  max-width: 1120px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Encabezado ─────────────────────────────────────────────── */
+.encabezado {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  overflow: hidden;
+  background-color: #f7f5ef;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.encabezadoTexto {
+  padding: 48px 52px;
+}
+
+.etiquetaSeccion {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #c4700a;
+  margin: 0 0 18px;
+}
+
+.tituloPrincipal {
+  font-family: 'Inria Serif', serif;
+  font-size: 2.3rem;
+  line-height: 1.2;
+  color: #1b313f;
+  margin: 0 0 18px;
+}
+
+.subtitulo {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #555555;
+  margin: 0;
+}
+
+.resultadoCaja {
+  background-color: #ece8dc;
+  padding: 48px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.resultadoRotulo {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5d6163;
+}
+
+.resultadoTexto {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #555555;
+  margin: 0;
+}
+
+/* Etiqueta de resultado (Apto / Necesita reforzamiento / Pendiente) */
+.etiqueta {
+  display: inline-block;
+  font-family: 'Inria Serif', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 999px;
+}
 .apto { background: #dcfce7; color: #166534; }
 .refuerzo { background: #fee2e2; color: #991b1b; }
 .pendiente { background: #e5e7eb; color: #374151; }
-.item { border-left: 6px solid #999; padding: 0.6rem 0.9rem; margin-bottom: 0.8rem;
-  background: #f9fafb; border-radius: 6px; }
+
+/* ── Tarjetas ───────────────────────────────────────────────── */
+.columnas {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.tarjeta {
+  background-color: #f7f5ef;
+  border-radius: 14px;
+  padding: 32px 36px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+.titulo {
+  font-family: 'Inria Serif', serif;
+  font-size: 1.45rem;
+  color: #1b313f;
+  margin: 0 0 12px;
+}
+
+.textoSuave {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #555555;
+  margin: 0 0 18px;
+}
+
+/* Estado vacío (todavía no hay test) */
+.vacio {
+  text-align: center;
+  padding: 56px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.vacio .textoSuave { max-width: 520px; }
+.vacioIcono {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #1b313f;
+  color: #ffffff;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+/* Áreas a reforzar como chips */
+.chips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.chip {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #9a3412;
+  background-color: #ffedd5;
+  border: 1px solid #fdba74;
+  border-radius: 999px;
+  padding: 7px 14px;
+}
+
+/* Leyenda de colores */
+.leyenda {
+  display: flex;
+  gap: 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: #5d6163;
+  margin-bottom: 18px;
+}
+.leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+.punto { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.puntoRojo { background: #dc2626; }
+.puntoAmarillo { background: #eab308; }
+
+/* Recomendaciones */
+.item {
+  background-color: #ffffff;
+  border-left: 6px solid #999;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+.item:last-child { margin-bottom: 0; }
 .rojo { border-left-color: #dc2626; }
 .amarillo { border-left-color: #eab308; }
 .verde { border-left-color: #16a34a; }
-.itemTema { font-weight: 700; }
-.itemRespuesta { color: #444; font-size: 0.95rem; }
+
+.itemCabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.itemTema {
+  font-family: 'Inria Serif', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1b313f;
+}
+.itemNivel {
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+.nivel_rojo { background: #fee2e2; color: #991b1b; }
+.nivel_amarillo { background: #fef9c3; color: #854d0e; }
+.nivel_verde { background: #dcfce7; color: #166534; }
+
+.itemPregunta,
+.itemRespuesta,
+.itemRecomendacion {
+  font-family: 'Inter', sans-serif;
+  margin: 0 0 6px;
+}
+.itemPregunta { font-size: 0.85rem; color: #5d6163; }
+.itemRespuesta { font-size: 0.85rem; color: #1b313f; font-weight: 600; }
+.itemRecomendacion { font-size: 0.92rem; line-height: 1.6; color: #333333; margin: 0; }
+
+/* ── Formulario ─────────────────────────────────────────────── */
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 22px;
+}
+.campo { display: flex; flex-direction: column; }
+.campoAncho { grid-column: 1 / -1; }
+.campo > label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1b313f;
+  margin-bottom: 8px;
+}
+.campo input,
+.campo select,
+.campo textarea {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border: 1px solid #cfc9b8;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #1b313f;
+}
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: 2px solid #1b313f;
+  outline-offset: 1px;
+}
+
+.casillas { display: flex; flex-wrap: wrap; gap: 10px; }
+.casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  color: #1b313f;
+  background-color: #ffffff;
+  border: 1px solid #cfc9b8;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.casilla input { accent-color: #1b313f; }
+.casillaActiva { background-color: #e7ecef; border-color: #1b313f; }
+
+/* ── Botones y mensajes ─────────────────────────────────────── */
+.boton {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  background-color: #1b313f;
+  color: #ffffff;
+  border: 1px solid #1b313f;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.boton:hover { background-color: #153a59; }
+.boton:disabled { opacity: 0.5; cursor: default; }
+.botonSecundario { background-color: transparent; color: #1b313f; }
+.botonSecundario:hover { background-color: rgba(27, 49, 63, 0.08); }
+
+.exito { font-family: 'Inter', sans-serif; color: #15803d; margin: 12px 0 0; }
+.error { font-family: 'Inter', sans-serif; color: #b91c1c; margin: 12px 0 0; }
+
+/* ── Pantallas angostas ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .contenedor { padding: 18px; }
+  .encabezado,
+  .columnas,
+  .formulario { grid-template-columns: 1fr; }
+  .encabezadoTexto,
+  .resultadoCaja { padding: 32px 26px; }
+  .tituloPrincipal { font-size: 1.8rem; }
+  .tarjeta { padding: 26px 22px; }
+}

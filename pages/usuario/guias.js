@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import LayoutTest from "../../componentes/LayoutTest";
 import { leerToken } from "../../utilidades/peticiones";
 import estilos from "../../estilos/guias.module.css";
@@ -44,15 +45,21 @@ export default function Guias() {
               avance y descargar tu Pre-Constancia.
             </p>
             <div className={estilos.botones}>
-              <a href="/usuario/progreso" className={estilos.boton}>
+              <Link href="/usuario/progreso" className={estilos.boton}>
                 Ver mi avance
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/usuario/constancia"
                 className={`${estilos.boton} ${estilos.botonSecundario}`}
               >
                 Mi Pre-Constancia
-              </a>
+              </Link>
+              <Link
+                href="/usuario/ficha-salud"
+                className={`${estilos.boton} ${estilos.botonSecundario}`}
+              >
+                Ver Ficha Preventiva
+              </Link>
             </div>
           </div>
 
