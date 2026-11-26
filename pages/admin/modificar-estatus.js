@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import LayoutAdmin from '../../componentes/admin/LayoutAdmin';
 import { obtenerEstatus, cambiarEstatus, redirigirSiNoAutorizado } from '../../utilidades/admin_peticiones';
 import estilos from '../../estilos/admin.module.css';
+import { validarCorreo } from '../../utilidades/validaciones';
 
 export default function ModificarEstatus() {
   const router = useRouter();
@@ -30,11 +31,10 @@ export default function ModificarEstatus() {
     e.preventDefault();
     setMensaje({ texto: '', tipo: '' });
     const correoLimpio = correo.trim().toLowerCase();
-    if (!/^[^\s@]+@gmail\.com$/i.test(correoLimpio) || correoLimpio.length > 50) {
-      setMensaje({
-        texto: 'El correo debe terminar en @gmail.com (máximo 50 caracteres)',
-        tipo: 'error'
-      });
+    // Misma regla de correo que el registro y el backend
+    const errorCorreo = validarCorreo(correoLimpio);
+    if (errorCorreo) {
+      setMensaje({ texto: errorCorreo, tipo: 'error' });
       return;
     }
     
@@ -43,7 +43,7 @@ export default function ModificarEstatus() {
     }
     setEnviando(true);
     try {
-      const data = await cambiarEstatus(correo, estatus);
+      const data = await cambiarEstatus(correoLimpio, estatus);
       setMensaje({ texto: data.mensaje, tipo: 'exito' });
       setCorreo('');
       setEstatus('');
