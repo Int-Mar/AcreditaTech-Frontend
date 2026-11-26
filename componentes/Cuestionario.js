@@ -2,7 +2,6 @@
 // Un solo componente para los tests. Recibe el tipo: 1 = técnico, 2 = salud.
 // Tiene tres fases: "inicio" (ventanasTest.html), "pregunta" (QuizOpMultiple.html)
 // y "resultado" (VentanaResultado.html).
-// La Persona 4 lo reutiliza para el test de salud con <Cuestionario tipo={2} />.
 //
 // Cambios para el test de salud (Documento Maestro):
 // - Las preguntas de casillas (tipo_pregunta = 'checkbox') permiten marcar varias opciones.
@@ -19,7 +18,7 @@ import {
   obtenerEstadoTest,
 } from '../utilidades/evaluaciones_peticiones';
 
-// Textos que cambian según el tipo de test (edítalos si el equipo quiere otros)
+// Textos que cambian según el tipo de test
 const TEXTOS = {
   1: {
     titulo: 'Test Técnico',
@@ -179,7 +178,7 @@ export default function Cuestionario({ tipo }) {
     <p style={{ color: 'red', fontSize: '0.9rem', margin: '0.5rem 0' }}>{error}</p>
   );
 
-  // ── Fase 1: inicio del test ─────────────────────────────────────────────
+  // Fase 1: inicio del test
   if (fase === 'inicio') {
     return (
       <main className="test-intro-content-area">
@@ -207,11 +206,12 @@ export default function Cuestionario({ tipo }) {
     );
   }
 
-  // ── Fase 2: pregunta ────────────────────────────────────────────────────
+  // Fase 2: pregunta
   if (fase === 'pregunta' && datos) {
     return (
       <main
-        className={'quiz-content-area' + (tipo === 1 ? ' quiz-tecnico' : '')}
+        // Los dos tests (técnico y salud) usan la misma tarjeta blanca (clase quiz-tecnico)
+        className="quiz-content-area quiz-tecnico"
         style={tipo === 1 && fondo ? { backgroundImage: `url(${fondo})` } : undefined}
       >
         <div className="quiz-card-socrative">
@@ -222,7 +222,7 @@ export default function Cuestionario({ tipo }) {
           <div className="quiz-question-title">{datos.pregunta.texto}</div>
 
           {esCasillas && (
-            <p style={{ fontSize: '0.9rem', margin: '0 0 0.5rem' }}>
+            <p style={{ fontSize: '0.9rem', margin: '0 0 0.5rem', color: '#5d6163', fontFamily: 'Arial, Helvetica, sans-serif' }}>
               Puedes marcar varias opciones.
             </p>
           )}
