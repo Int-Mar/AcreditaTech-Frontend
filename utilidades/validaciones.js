@@ -1,5 +1,6 @@
 export const REGLA_NOMBRE = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]{5,25}$/;
-export const REGLA_CORREO = /^[A-Za-z0-9._%+\-]+@gmail\.com$/i;
+// Correo: solo @gmail.com, @outlook.com o @hotmail.com (igual que el backend)
+export const REGLA_CORREO = /^[A-Za-z0-9._%+\-]+@(gmail|outlook|hotmail)\.com$/i;
 export const REGLA_TELEFONO = /^55\d{8}$/;
 export const REGLA_CONTRASENA =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[\x21-\x7E]{8,20}$/;
@@ -22,7 +23,7 @@ export function validarCorreo(valor) {
   const correo = valor.trim();
   return correo.length <= 50 && REGLA_CORREO.test(correo)
     ? ""
-    : "Correo: debe ser @gmail.com, de máximo 50 caracteres y sin símbolos raros";
+    : "Correo: debe ser @gmail.com, @outlook.com o @hotmail.com, de máximo 50 caracteres y sin símbolos raros";
 }
 
 export function validarContrasena(valor) {

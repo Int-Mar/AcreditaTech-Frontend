@@ -4,7 +4,6 @@ import { iniciarSesion } from "../utilidades/peticiones";
 
 export default function Login() {
   const router = useRouter();
-  const [esAdmin, setEsAdmin] = useState(false);
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [error, setError] = useState("");
@@ -47,10 +46,7 @@ export default function Login() {
   return (
     <>
       <div className="login-card-container">
-        <div
-          className="login-card"
-          style={{ borderColor: esAdmin ? "#204c6f" : "transparent" }}
-        >
+        <div className="login-card">
           <div style={{ marginBottom: "8px" }}>
             <a
               href="/"
@@ -73,9 +69,7 @@ export default function Login() {
               <img src="/img/LogoAzul.png" alt="AcreditaTech" />
               <span>AcreditaTech</span>
             </div>
-            <div className="login-title-text">
-              {esAdmin ? "Iniciar Sesión (Admin)" : "Iniciar Sesión"}
-            </div>
+            <div className="login-title-text">Iniciar Sesión</div>
           </div>
 
           <form className="auth-form" onSubmit={manejarEnvio}>
@@ -126,18 +120,6 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="login-footer">
-            <a
-              href="#"
-              className="admin-link"
-              onClick={(e) => {
-                e.preventDefault();
-                setEsAdmin(!esAdmin);
-              }}
-            >
-              {esAdmin ? "Usuario" : "Admin"}
-            </a>
-          </div>
         </div>
       </div>
     </>
